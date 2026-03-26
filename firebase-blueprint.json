@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Tour": {
+      "title": "Tour Calculation",
+      "description": "A saved tour cost calculation including tour info, costs, and exchange rates.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string", "description": "The user ID of the owner" },
+        "savedAt": { "type": "string", "format": "date-time" },
+        "tourInfo": {
+          "type": "object",
+          "properties": {
+            "mouContact": { "type": "string" },
+            "groupCode": { "type": "string" },
+            "destinationCountry": { "type": "string" },
+            "program": { "type": "string" },
+            "startDate": { "type": "string", "format": "date-time" },
+            "endDate": { "type": "string", "format": "date-time" },
+            "numDays": { "type": "number" },
+            "numNights": { "type": "number" },
+            "numPeople": { "type": "number" },
+            "travelerInfo": { "type": "string" }
+          }
+        },
+        "allCosts": { "type": "object" },
+        "exchangeRates": { "type": "object" },
+        "profitPercentage": { "type": "number" }
+      },
+      "required": ["uid", "tourInfo", "allCosts"]
+    }
+  },
+  "firestore": {
+    "/tours/{tourId}": {
+      "schema": "Tour",
+      "description": "Collection of saved tour calculations"
+    }
+  }
+}

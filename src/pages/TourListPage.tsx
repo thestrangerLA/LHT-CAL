@@ -1,0 +1,396 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { format, isSameMonth, isSameYear } from 'date-fns';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlusCircle, Calculator, MoreHorizontal, Search, ArrowLeft, MapPin, FileText, Users, LogOut, LayoutDashboard, Settings, User, TrendingUp, Calendar as CalendarIcon, Globe } from 'lucide-react';
+import { toast } from "sonner";
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, where } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '@/lib/firebase';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { toDateSafe } from '@/lib/timestamp';
+import { SavedCalculation } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+
+export default function TourCostCalculatorListPage() {
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+    const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([]);
+    const [calculationsLoading, setCalculationsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState<string>('all');
+
+    useEffect(() => {
+        if (!user) return;
+        setCalculationsLoading(true);
+        const toursColRef = collection(db, 'tours');
+        const q = query(
+            toursColRef, 
+            where('uid', '==', user.uid),
+            orderBy('savedAt', 'desc')
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const calcs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SavedCalculation));
+            setSavedCalculations(calcs);
+            setCalculationsLoading(false);
+        }, (error) => {
+            handleFirestoreError(error, OperationType.LIST, 'tours');
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
+    const availableMonths = useMemo(() => {
+        const monthSet = new Set<string>();
+        savedCalculations.forEach(calc => {
+            const date = toDateSafe(calc.savedAt);
+            if (date) {
+                monthSet.add(format(date, 'yyyy-MM'));
+            }
+        });
+        return Array.from(monthSet).sort((a,b) => b.localeCompare(a));
+    }, [savedCalculations]);
+
+    const filteredCalculations = useMemo(() => {
+         const filteredByMonth = savedCalculations.filter(calc => {
+            if (selectedMonth === 'all') {
+                return true;
+            }
+            const savedAtDate = toDateSafe(calc.savedAt);
+            if (!savedAtDate) return false;
+            const [year, month] = selectedMonth.split('-').map(Number);
+            const selectedDate = new Date(year, month - 1);
+            return isSameMonth(savedAtDate, selectedDate) && isSameYear(savedAtDate, selectedDate);
+        });
+        
+        return filteredByMonth.filter(calc => {
+            const groupCode = calc.tourInfo?.groupCode?.toLowerCase() || '';
+            const program = calc.tourInfo?.program?.toLowerCase() || '';
+            const destination = calc.tourInfo?.destinationCountry?.toLowerCase() || '';
+            return groupCode.includes(searchQuery.toLowerCase()) || 
+                   program.includes(searchQuery.toLowerCase()) ||
+                   destination.includes(searchQuery.toLowerCase());
+        }).sort((a, b) => {
+            const tourCodeA = a.tourInfo?.groupCode || '';
+            const tourCodeB = b.tourInfo?.groupCode || '';
+            return tourCodeB.localeCompare(tourCodeA);
+        });
+    }, [savedCalculations, searchQuery, selectedMonth]);
+
+    const handleAddNewCalculation = async () => {
+        if (!user) return;
+        const newCalculationData = {
+            uid: user.uid,
+            savedAt: serverTimestamp(),
+            tourInfo: {
+                mouContact: '',
+                groupCode: `LTH${format(new Date(),'yyyyMMddHHmmss')}`,
+                destinationCountry: '',
+                program: '',
+                startDate: null,
+                endDate: null,
+                numDays: 1,
+                numNights: 0,
+                numPeople: 1,
+                travelerInfo: ''
+            },
+            allCosts: {
+                accommodations: [],
+                trips: [],
+                flights: [],
+                trainTickets: [],
+                entranceFees: [],
+                meals: [],
+                guides: [],
+                documents: [],
+                overseasPackages: [],
+                activities: []
+            },
+            exchangeRates: {
+                USD: { THB: 38, LAK: 25000, CNY: 8, USD: 1 },
+                THB: { USD: 0.032, LAK: 700, CNY: 0.25, THB: 1 },
+                CNY: { USD: 0.20, THB: 6, LAK: 3500, CNY: 1 },
+                LAK: { USD: 0.00005, THB: 0.0015, CNY: 0.00035, LAK: 1 },
+            },
+            profitPercentage: 20
+        };
+        
+        try {
+            const toursColRef = collection(db, 'tours');
+            const newDocRef = await addDoc(toursColRef, newCalculationData);
+            if(newDocRef){
+              navigate(`/tour/cost-calculator/${newDocRef.id}`);
+            }
+        } catch (error) {
+            handleFirestoreError(error, OperationType.CREATE, 'tours');
+        }
+    };
+    
+    const handleDeleteCalculation = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        if (window.confirm("ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນການຄຳນວນນີ້?")) {
+            try {
+                const docRef = doc(db, 'tours', id);
+                await deleteDoc(docRef);
+                toast.success("ລຶບຂໍ້ມູນສຳເລັດ");
+            } catch (error) {
+                handleFirestoreError(error, OperationType.DELETE, `tours/${id}`);
+            }
+        }
+    };
+
+    const handleRowClick = (id: string) => {
+        navigate(`/tour/cost-calculator/${id}`);
+    };
+
+    const stats = useMemo(() => {
+        const totalPeople = savedCalculations.reduce((acc, calc) => acc + (calc.tourInfo?.numPeople || 0), 0);
+        const destinations = new Set(savedCalculations.map(calc => calc.tourInfo?.destinationCountry).filter(Boolean));
+        return {
+            total: savedCalculations.length,
+            people: totalPeople,
+            destinations: destinations.size
+        };
+    }, [savedCalculations]);
+
+    return (
+        <div className="flex min-h-screen w-full bg-[#F8F9FB]">
+            {/* Sidebar */}
+            <aside className="hidden lg:flex w-72 flex-col border-r bg-white sticky top-0 h-screen">
+                <div className="p-8">
+                    <div className="flex items-center gap-3 mb-10">
+                        <div className="p-2.5 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                            <Calculator className="h-6 w-6"/>
+                        </div>
+                        <h1 className="text-xl font-black tracking-tighter">TourCalc</h1>
+                    </div>
+                    
+                    <nav className="space-y-2">
+                        <Button variant="ghost" className="w-full justify-start h-12 rounded-xl bg-primary/5 text-primary font-bold">
+                            <LayoutDashboard className="mr-3 h-5 w-5" />
+                            Dashboard
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start h-12 rounded-xl text-muted-foreground hover:bg-muted/50 font-bold">
+                            <Globe className="mr-3 h-5 w-5" />
+                            Destinations
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start h-12 rounded-xl text-muted-foreground hover:bg-muted/50 font-bold">
+                            <Users className="mr-3 h-5 w-5" />
+                            Clients
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start h-12 rounded-xl text-muted-foreground hover:bg-muted/50 font-bold">
+                            <Settings className="mr-3 h-5 w-5" />
+                            Settings
+                        </Button>
+                    </nav>
+                </div>
+                
+                <div className="mt-auto p-8 border-t">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/30 mb-4">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black">
+                            {user?.email?.[0].toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-black truncate">{user?.email?.split('@')[0]}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                        </div>
+                    </div>
+                    <Button variant="ghost" onClick={logout} className="w-full justify-start h-12 rounded-xl text-destructive hover:bg-destructive/5 font-bold">
+                        <LogOut className="mr-3 h-5 w-5" />
+                        Logout
+                    </Button>
+                </div>
+            </aside>
+
+            <div className="flex-1 flex flex-col min-w-0">
+                <header className="sticky top-0 z-30 flex h-20 items-center gap-4 bg-white/80 px-6 backdrop-blur-xl sm:px-10 border-b lg:border-none">
+                    <div className="lg:hidden flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-primary text-primary-foreground">
+                            <Calculator className="h-5 w-5"/>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 flex items-center gap-4">
+                        <div className="relative hidden md:block flex-1 max-w-md">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="ຄົ້ນຫາລະຫັດກຸ່ມ, ປາຍທາງ, ໂປຣແກຣມ..."
+                                className="pl-12 w-full bg-muted/40 border-transparent focus:bg-white h-12 rounded-2xl transition-all"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                            <SelectTrigger className="w-[160px] bg-muted/40 border-transparent h-12 rounded-2xl font-bold">
+                                <SelectValue placeholder="ເລືອກເດືອນ" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                <SelectItem value="all">ທຸກເດືອນ</SelectItem>
+                                {availableMonths.map(month => (
+                                    <SelectItem key={month} value={month}>
+                                        {format(new Date(month + '-02'), 'LLLL yyyy')}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Button onClick={handleAddNewCalculation} className="h-12 rounded-2xl px-8 font-black shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all active:scale-95">
+                            <PlusCircle className="mr-2 h-5 w-5" />
+                            ເພີ່ມໃໝ່
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={logout} className="lg:hidden h-12 w-12 rounded-2xl text-muted-foreground hover:text-destructive hover:bg-destructive/5">
+                            <LogOut className="h-5 w-5" />
+                        </Button>
+                    </div>
+                </header>
+
+                <main className="flex-1 overflow-y-auto p-6 sm:px-10 sm:py-12">
+                    <div className="w-full max-w-screen-2xl mx-auto space-y-12">
+                        {/* Stats Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <Card className="border-none shadow-soft rounded-[2rem] bg-white p-8 group hover:shadow-xl transition-all">
+                                <div className="flex items-center gap-6">
+                                    <div className="p-4 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                                        <Calculator className="h-8 w-8" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Total Calculations</p>
+                                        <h3 className="text-3xl font-black tracking-tighter">{stats.total}</h3>
+                                    </div>
+                                </div>
+                            </Card>
+                            <Card className="border-none shadow-soft rounded-[2rem] bg-white p-8 group hover:shadow-xl transition-all">
+                                <div className="flex items-center gap-6">
+                                    <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500">
+                                        <Users className="h-8 w-8" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Total Travelers</p>
+                                        <h3 className="text-3xl font-black tracking-tighter">{stats.people}</h3>
+                                    </div>
+                                </div>
+                            </Card>
+                            <Card className="border-none shadow-soft rounded-[2rem] bg-white p-8 group hover:shadow-xl transition-all">
+                                <div className="flex items-center gap-6">
+                                    <div className="p-4 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
+                                        <Globe className="h-8 w-8" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">Destinations</p>
+                                        <h3 className="text-3xl font-black tracking-tighter">{stats.destinations}</h3>
+                                    </div>
+                                </div>
+                            </Card>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <h2 className="text-3xl font-black tracking-tight">ລາຍການທັງໝົດ</h2>
+                                    <p className="text-muted-foreground font-medium">ຈັດການຂໍ້ມູນການຄຳນວນຕົ້ນທຶນທົວຂອງທ່ານ</p>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground bg-white px-4 py-2 rounded-xl shadow-sm">
+                                    <TrendingUp className="h-4 w-4 text-primary" />
+                                    {filteredCalculations.length} items found
+                                </div>
+                            </div>
+
+                            {calculationsLoading ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                                    {[1,2,3,4,5,6].map(i => (
+                                        <Card key={i} className="animate-pulse h-64 bg-white border-none rounded-[2rem] shadow-soft" />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                                    {filteredCalculations.length > 0 ? filteredCalculations.map(calc => {
+                                        const savedAtDate = toDateSafe(calc.savedAt);
+                                        return (
+                                            <Card 
+                                                key={calc.id} 
+                                                className="group relative overflow-hidden border-none bg-white shadow-soft hover:shadow-2xl rounded-[2rem] cursor-pointer transition-all duration-500 hover:-translate-y-2"
+                                                onClick={() => handleRowClick(calc.id)}
+                                            >
+                                                <div className="absolute top-0 left-0 w-full h-2 bg-primary/10 group-hover:bg-primary transition-colors duration-500" />
+                                                <CardContent className="p-8">
+                                                    <div className="flex justify-between items-start mb-8">
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="h-2 w-2 rounded-full bg-primary" />
+                                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                                                                    {savedAtDate ? format(savedAtDate, 'dd MMM yyyy') : '...'}
+                                                                </p>
+                                                            </div>
+                                                            <h3 className="font-black text-2xl tracking-tight leading-none group-hover:text-primary transition-colors">
+                                                                {calc.tourInfo?.groupCode || 'No Code'}
+                                                            </h3>
+                                                        </div>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-muted/50 transition-all" onClick={(e) => e.stopPropagation()}>
+                                                                    <MoreHorizontal className="h-5 w-5" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="rounded-2xl border-none shadow-2xl p-2 min-w-[160px]">
+                                                                <DropdownMenuItem onSelect={() => navigate(`/tour/cost-calculator/${calc.id}`)} className="rounded-xl h-10 font-bold">ແກ້ໄຂຂໍ້ມູນ</DropdownMenuItem>
+                                                                <DropdownMenuItem onSelect={(e) => handleDeleteCalculation(e as any, calc.id)} className="text-destructive rounded-xl h-10 font-bold hover:bg-destructive/5">ລຶບອອກ</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                    
+                                                    <div className="space-y-5">
+                                                        <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground/80">
+                                                            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                                                                <MapPin className="h-4 w-4" />
+                                                            </div>
+                                                            <span className="truncate">{calc.tourInfo?.destinationCountry || 'ບໍ່ລະບຸຈຸດໝາຍ'}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground/80">
+                                                            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
+                                                                <FileText className="h-4 w-4" />
+                                                            </div>
+                                                            <span className="truncate">{calc.tourInfo?.program || 'ບໍ່ມີໂປຣແກຣມ'}</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="mt-10 pt-8 border-t border-muted/50 flex items-center justify-between">
+                                                        <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-primary/5 text-primary">
+                                                            <Users className="h-4 w-4" />
+                                                            <span className="text-xs font-black">{calc.tourInfo?.numPeople || 0} ຄົນ</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-xs font-black text-primary group-hover:gap-4 transition-all">
+                                                            ເບິ່ງລາຍລະອຽດ
+                                                            <ArrowLeft className="h-4 w-4 rotate-180" />
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    }) : (
+                                        <div className="col-span-full py-40 text-center border-4 border-dashed rounded-[3rem] bg-white border-muted/20">
+                                            <div className="inline-flex p-10 rounded-[2rem] bg-muted/10 mb-8">
+                                                <Calculator className="h-20 w-20 text-muted-foreground/20" />
+                                            </div>
+                                            <h3 className="text-3xl font-black mb-3 tracking-tight">ບໍ່ພົບຂໍ້ມູນການຄຳນວນ</h3>
+                                            <p className="text-muted-foreground mb-10 max-w-md mx-auto font-medium">ລອງປ່ຽນເງື່ອນໄຂການຄົ້ນຫາ ຫຼື ເພີ່ມການຄຳນວນໃໝ່ເພື່ອເລີ່ມຕົ້ນການວາງແຜນທົວຂອງທ່ານ</p>
+                                            <Button onClick={handleAddNewCalculation} size="lg" className="h-14 rounded-2xl px-10 font-black shadow-xl shadow-primary/20">
+                                                <PlusCircle className="mr-3 h-6 w-6" />
+                                                ເພີ່ມການຄຳນວນໃໝ່
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+}
