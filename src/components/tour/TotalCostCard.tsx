@@ -56,7 +56,7 @@ export function TotalCostCard({ totalsByCategory }: { totalsByCategory: Record<s
                     const name = categoryNames[category] || category;
                     
                     return (
-                        <Card key={category} className="border-none shadow-sm rounded-2xl bg-white overflow-hidden hover:shadow-md transition-all group border border-border/50">
+                        <Card key={category} className="border-none shadow-sm rounded-2xl bg-card overflow-hidden hover:shadow-md transition-all group border border-border/50">
                             <CardContent className="p-5 flex items-center gap-5">
                                 <div className="p-4 bg-green-500/10 rounded-full text-green-600 group-hover:scale-110 transition-transform duration-500">
                                     <Icon className="h-6 w-6" />

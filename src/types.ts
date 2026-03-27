@@ -2,10 +2,11 @@ import { Timestamp } from 'firebase/firestore';
 
 export type Currency = 'USD' | 'THB' | 'LAK' | 'CNY';
 
-export type DateValue = Date | string | undefined | null | Timestamp;
+export type DateValue = string | undefined | null | Timestamp;
 
 export interface Room {
     id: string;
+    date?: DateValue;
     type: string;
     numRooms: number;
     numNights: number;
@@ -101,9 +102,8 @@ export interface OverseasPackage {
     id: string;
     date?: DateValue;
     name: string;
-    priceUSD: number;
-    priceTHB: number;
-    priceCNY: number;
+    price: number;
+    currency: Currency;
 }
 
 export interface Activity {

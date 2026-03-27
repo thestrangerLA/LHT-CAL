@@ -6,11 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { ArrowLeft, ArrowRight, Save, Trash2, MapPin, Calendar as CalendarIcon, BedDouble, Truck, Plane, TrainFront, PlusCircle, Camera, UtensilsCrossed, Users, FileText, Clock, Eye, EyeOff, Printer, Earth, Bike, Calculator, LogOut, User, Globe } from "lucide-react";
-import { format } from 'date-fns';
-import { th } from 'date-fns/locale';
+import { ArrowLeft, ArrowRight, Save, Trash2, MapPin, BedDouble, Truck, Plane, TrainFront, PlusCircle, Camera, UtensilsCrossed, Users, FileText, Clock, Eye, EyeOff, Printer, Earth, Bike, Calculator, LogOut, User, Globe, Calendar } from "lucide-react";
 import { TotalCostCard } from '@/components/tour/TotalCostCard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +15,6 @@ import { toast } from "sonner";
 import { ExchangeRateCard } from '@/components/tour/ExchangeRateCard';
 import { doc, setDoc, serverTimestamp, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '@/lib/firebase';
-import { toDateSafe } from '@/lib/timestamp';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
     Currency, 
@@ -106,13 +101,6 @@ export default function TourDetailPage() {
             if (snapshot.exists()) {
                 const data = snapshot.data() as SavedCalculation & { uid: string };
                 
-                // Security check: ensure user owns this doc
-                if (data.uid !== user.uid) {
-                    toast.error("You do not have permission to view this calculation.");
-                    navigate('/tour/cost-calculator');
-                    return;
-                }
-
                 setTourInfo(data.tourInfo || {
                     mouContact: '', groupCode: '', destinationCountry: '', program: '',
                     numDays: 1, numNights: 0, numPeople: 1, travelerInfo: ''
@@ -196,24 +184,25 @@ export default function TourDetailPage() {
     };
 
     // Specific Adders
-    const addAccommodation = () => addItem('accommodations', { id: uuidv4(), name: '', type: 'hotel', rooms: [{ id: uuidv4(), type: 'ຕຽງດ່ຽວ', numRooms: 1, numNights: 1, price: 0, currency: 'USD' }] });
-    const addRoom = (accId: string) => {
-        const accommodations = allCosts.accommodations.map(acc => {
-            if (acc.id === accId) {
-                const newRoom = { id: uuidv4(), type: 'ຕຽງດ່ຽວ', numRooms: 1, numNights: 1, price: 0, currency: 'USD' };
-                return { ...acc, rooms: [...acc.rooms, newRoom] };
+    const addAccommodation = () => addItem('accommodations', { id: uuidv4(), name: '', type: 'hotel', checkInDate: '', rooms: [{ id: uuidv4(), date: '', type: 'ຕຽງດ່ຽວ', numRooms: 1, numNights: 1, price: 0, currency: 'USD' }] });
+    const updateRoom = (accId: string, roomId: string, field: string, value: any) => {
+        const updatedAccs = allCosts.accommodations.map(a => {
+            if (a.id === accId) {
+                return { ...a, rooms: a.rooms.map(r => r.id === roomId ? { ...r, [field]: value } : r) };
             }
-            return acc;
+            return a;
         });
-        updateCosts('accommodations', accommodations);
+        updateCosts('accommodations', updatedAccs);
     };
-    const updateRoom = (accId: string, roomId: string, field: keyof Room, value: any) => {
-         const accommodations = allCosts.accommodations.map(acc => {
-            if (acc.id === accId) {
-                const updatedRooms = acc.rooms.map(room => room.id === roomId ? { ...room, [field]: value } : room);
-                return { ...acc, rooms: updatedRooms };
+
+    const addRoom = (accId: string) => {
+        const acc = allCosts.accommodations.find(a => a.id === accId);
+        const accommodations = allCosts.accommodations.map(a => {
+            if (a.id === accId) {
+                const newRoom = { id: uuidv4(), date: a.checkInDate, type: 'ຕຽງດ່ຽວ', numRooms: 1, numNights: 1, price: 0, currency: 'USD' };
+                return { ...a, rooms: [...a.rooms, newRoom] };
             }
-            return acc;
+            return a;
         });
         updateCosts('accommodations', accommodations);
     };
@@ -227,15 +216,15 @@ export default function TourDetailPage() {
         updateCosts('accommodations', accommodations);
     };
 
-    const addTrip = () => addItem('trips', { id: uuidv4(), date: undefined, location: '', route: '', vehicleType: 'ລົດຕູ້ທຳມະດາ', numVehicles: 1, numDays: 1, pricePerVehicle: 0, currency: 'USD' });
-    const addFlight = () => addItem('flights', { id: uuidv4(), from: '', to: '', departureDate: undefined, departureTime: '08:00', pricePerPerson: 0, numPeople: 1, currency: 'USD' });
-    const addTrainTicket = () => addItem('trainTickets', { id: uuidv4(), from: '', to: '', departureDate: undefined, departureTime: '08:00', ticketClass: '', numTickets: 1, pricePerTicket: 0, currency: 'LAK' });
-    const addEntranceFee = () => addItem('entranceFees', { id: uuidv4(), date: undefined, locationName: '', pax: 1, numLocations: 1, price: 0, currency: 'LAK' });
-    const addMealCost = () => addItem('meals', { id: uuidv4(), date: undefined, name: '', pax: 1, breakfast: 0, lunch: 0, dinner: 0, pricePerMeal: 0, currency: 'LAK' });
-    const addGuideFee = () => addItem('guides', { id: uuidv4(), date: undefined, guideName: '', numGuides: 1, numDays: 1, pricePerDay: 0, currency: 'LAK' });
-    const addDocumentFee = () => addItem('documents', { id: uuidv4(), date: undefined, documentName: '', pax: 1, price: 0, currency: 'LAK' });
-    const addOverseasPackage = () => addItem('overseasPackages', { id: uuidv4(), date: undefined, name: '', priceUSD: 0, priceTHB: 0, priceCNY: 0 });
-    const addActivity = () => addItem('activities', { id: uuidv4(), date: undefined, name: '', pax: 1, price: 0, currency: 'LAK' });
+    const addTrip = () => addItem('trips', { id: uuidv4(), date: '', location: '', route: '', vehicleType: 'ລົດຕູ້ທຳມະດາ', numVehicles: 1, numDays: 1, pricePerVehicle: 0, currency: 'USD' });
+    const addFlight = () => addItem('flights', { id: uuidv4(), from: '', to: '', departureDate: '', departureTime: '08:00', pricePerPerson: 0, numPeople: 1, currency: 'USD' });
+    const addTrainTicket = () => addItem('trainTickets', { id: uuidv4(), from: '', to: '', departureDate: '', departureTime: '08:00', ticketClass: '', numTickets: 1, pricePerTicket: 0, currency: 'LAK' });
+    const addEntranceFee = () => addItem('entranceFees', { id: uuidv4(), date: '', locationName: '', pax: 1, numLocations: 1, price: 0, currency: 'LAK' });
+    const addMealCost = () => addItem('meals', { id: uuidv4(), date: '', name: '', pax: 1, breakfast: 0, lunch: 0, dinner: 0, pricePerMeal: 0, currency: 'LAK' });
+    const addGuideFee = () => addItem('guides', { id: uuidv4(), date: '', guideName: '', numGuides: 1, numDays: 1, pricePerDay: 0, currency: 'LAK' });
+    const addDocumentFee = () => addItem('documents', { id: uuidv4(), date: '', documentName: '', pax: 1, price: 0, currency: 'LAK' });
+    const addOverseasPackage = () => addItem('overseasPackages', { id: uuidv4(), date: '', name: '', price: 0, currency: 'USD' });
+    const addActivity = () => addItem('activities', { id: uuidv4(), date: '', name: '', pax: 1, price: 0, currency: 'LAK' });
 
     // --- Totals ---
     const accommodationTotals = useMemo(() => {
@@ -307,9 +296,7 @@ export default function TourDetailPage() {
     const overseasPackageTotals = useMemo(() => {
         const totals: Record<Currency, number> = { USD: 0, THB: 0, LAK: 0, CNY: 0 };
         allCosts.overseasPackages?.forEach(pkg => {
-            totals.USD += pkg.priceUSD || 0;
-            totals.THB += pkg.priceTHB || 0;
-            totals.CNY += pkg.priceCNY || 0;
+            totals[pkg.currency] += pkg.price || 0;
         });
         return totals;
     }, [allCosts.overseasPackages]);
@@ -368,9 +355,6 @@ export default function TourDetailPage() {
         return <div className="flex items-center justify-center h-screen">Loading...</div>;
     }
 
-    const startDate = toDateSafe(tourInfo.startDate);
-    const endDate = toDateSafe(tourInfo.endDate);
-
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/30">
             <header className="sticky top-0 z-50 flex h-20 items-center gap-4 border-b bg-background/60 px-6 backdrop-blur-xl sm:px-10 print:hidden">
@@ -400,10 +384,6 @@ export default function TourDetailPage() {
                     <Button size="lg" onClick={handleSaveCalculation} className="rounded-full px-8 font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-95">
                         <Save className="mr-2 h-5 w-5" />
                         ບັນທຶກຂໍ້ມູນ
-                    </Button>
-                    <div className="h-8 w-px bg-muted mx-2" />
-                    <Button variant="ghost" size="icon" onClick={logout} className="h-12 w-12 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
-                        <LogOut className="h-5 w-5" />
                     </Button>
                 </div>
             </header>
@@ -488,29 +468,15 @@ export default function TourDetailPage() {
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ໄລຍະເວລາ</Label>
                                         <div className="flex items-center gap-3">
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button variant={"outline"} className="h-14 flex-1 justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-2xl transition-all">
-                                                        <CalendarIcon className="mr-3 h-5 w-5 text-primary" />
-                                                        {startDate ? format(startDate, "dd/MM/yyyy") : <span>ເລີ່ມ</span>}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0 rounded-[2rem] overflow-hidden shadow-2xl border-none">
-                                                    <Calendar mode="single" selected={startDate || undefined} onSelect={date => setTourInfo({...tourInfo, startDate: date?.toISOString()})} initialFocus locale={th} />
-                                                </PopoverContent>
-                                            </Popover>
+                                            <div className="relative flex-1 group">
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                                                <Input placeholder="ເລີ່ມ (ວັນທີ)" value={tourInfo.startDate as string || ''} onChange={e => setTourInfo({...tourInfo, startDate: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                            </div>
                                             <div className="h-px w-4 bg-muted-foreground/20" />
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button variant={"outline"} className="h-14 flex-1 justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-2xl transition-all">
-                                                        <CalendarIcon className="mr-3 h-5 w-5 text-primary" />
-                                                        {endDate ? format(endDate, "dd/MM/yyyy") : <span>ສິ້ນສຸດ</span>}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0 rounded-[2rem] overflow-hidden shadow-2xl border-none">
-                                                    <Calendar mode="single" selected={endDate || undefined} onSelect={date => setTourInfo({...tourInfo, endDate: date?.toISOString()})} initialFocus locale={th} />
-                                                </PopoverContent>
-                                            </Popover>
+                                            <div className="relative flex-1 group">
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                                                <Input placeholder="ສິ້ນສຸດ (ວັນທີ)" value={tourInfo.endDate as string || ''} onChange={e => setTourInfo({...tourInfo, endDate: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                            </div>
                                         </div>
                                     </div>
 
@@ -589,17 +555,10 @@ export default function TourDetailPage() {
                                                             </div>
                                                             <div className="space-y-2.5">
                                                                 <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີເຊັກອິນ</Label>
-                                                                <Popover>
-                                                                    <PopoverTrigger asChild>
-                                                                        <Button variant={"outline"} className="w-full h-11 justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/40 rounded-xl">
-                                                                            <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                            {acc.checkInDate ? format(toDateSafe(acc.checkInDate)!, "dd/MM/yyyy") : <span className="text-muted-foreground/50">ເລືອກວັນທີ</span>}
-                                                                        </Button>
-                                                                    </PopoverTrigger>
-                                                                    <PopoverContent className="w-auto p-0 border-none shadow-xl rounded-2xl">
-                                                                        <Calendar mode="single" selected={toDateSafe(acc.checkInDate) || undefined} onSelect={(date) => updateItem('accommodations', acc.id, 'checkInDate', date?.toISOString())} initialFocus />
-                                                                    </PopoverContent>
-                                                                </Popover>
+                                                                <div className="relative group">
+                                                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors z-10" />
+                                                                    <Input placeholder="ເລືອກວັນທີ" value={acc.checkInDate as string || ''} onChange={e => updateItem('accommodations', acc.id, 'checkInDate', e.target.value)} className="h-11 pl-10 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -616,6 +575,10 @@ export default function TourDetailPage() {
                                                             <div className="space-y-3">
                                                                 {acc.rooms.map((room, rIdx) => (
                                                                     <div key={room.id} className="flex flex-wrap items-end gap-3 p-4 rounded-xl bg-muted/20 border border-transparent hover:border-primary/10 transition-all relative group">
+                                                                        <div className="w-40 space-y-1.5">
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ວັນທີ</Label>
+                                                                            <Input placeholder="ວັນທີ" value={room.date as string || ''} onChange={e => updateRoom(acc.id, room.id, 'date', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-lg font-bold text-xs" />
+                                                                        </div>
                                                                         <div className="flex-1 min-w-[150px] space-y-1.5">
                                                                             <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ປະເພດ</Label>
                                                                             <Input value={room.type} onChange={e => updateRoom(acc.id, room.id, 'type', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background rounded-lg font-bold text-sm" />
@@ -682,17 +645,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {trip.date ? format(toDateSafe(trip.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(trip.date) || undefined} onSelect={date => updateItem('trips', trip.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={trip.date as string || ''} onChange={e => updateItem('trips', trip.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຄັນ</Label>
@@ -755,17 +708,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີອອກເດີນທາງ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {flight.departureDate ? format(toDateSafe(flight.departureDate), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(flight.departureDate) || undefined} onSelect={date => updateItem('flights', flight.id, 'departureDate', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={flight.departureDate as string || ''} onChange={e => updateItem('flights', flight.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="space-y-2.5">
@@ -825,17 +768,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີອອກເດີນທາງ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {ticket.departureDate ? format(toDateSafe(ticket.departureDate), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(ticket.departureDate) || undefined} onSelect={date => updateItem('trainTickets', ticket.id, 'departureDate', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={ticket.departureDate as string || ''} onChange={e => updateItem('trainTickets', ticket.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="space-y-2.5">
@@ -899,17 +832,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {fee.date ? format(toDateSafe(fee.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(fee.date) || undefined} onSelect={date => updateItem('entranceFees', fee.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={fee.date as string || ''} onChange={e => updateItem('entranceFees', fee.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -965,17 +888,7 @@ export default function TourDetailPage() {
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                            <Popover>
-                                                                <PopoverTrigger asChild>
-                                                                    <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                        {meal.date ? format(toDateSafe(meal.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                    </Button>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                    <Calendar mode="single" selected={toDateSafe(meal.date) || undefined} onSelect={date => updateItem('meals', meal.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                                </PopoverContent>
-                                                            </Popover>
+                                                            <Input placeholder="ວັນທີ" value={meal.date as string || ''} onChange={e => updateItem('meals', meal.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -1050,17 +963,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {guide.date ? format(toDateSafe(guide.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(guide.date) || undefined} onSelect={date => updateItem('guides', guide.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={guide.date as string || ''} onChange={e => updateItem('guides', guide.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຄົນ</Label>
@@ -1119,17 +1022,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {doc.date ? format(toDateSafe(doc.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(doc.date) || undefined} onSelect={date => updateItem('documents', doc.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={doc.date as string || ''} onChange={e => updateItem('documents', doc.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -1184,32 +1077,23 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {pkg.date ? format(toDateSafe(pkg.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(pkg.date) || undefined} onSelect={date => updateItem('overseasPackages', pkg.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={pkg.date as string || ''} onChange={e => updateItem('overseasPackages', pkg.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
-                                                    <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">USD</Label>
-                                                        <Input type="number" value={pkg.priceUSD} onChange={e => updateItem('overseasPackages', pkg.id, 'priceUSD', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                    <div className="space-y-2.5 col-span-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
+                                                        <Input type="number" value={pkg.price} onChange={e => updateItem('overseasPackages', pkg.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
-                                                    <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">THB</Label>
-                                                        <Input type="number" value={pkg.priceTHB} onChange={e => updateItem('overseasPackages', pkg.id, 'priceTHB', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
-                                                    </div>
-                                                    <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">CNY</Label>
-                                                        <Input type="number" value={pkg.priceCNY} onChange={e => updateItem('overseasPackages', pkg.id, 'priceCNY', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                    <div className="space-y-2.5 col-span-2">
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Select value={pkg.currency} onValueChange={v => updateItem('overseasPackages', pkg.id, 'currency', v)}>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectContent className="border-none shadow-xl rounded-xl">
+                                                                {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
+                                                            </SelectContent>
+                                                        </Select>
                                                     </div>
                                                 </CardContent>
                                             </Card>
@@ -1244,17 +1128,7 @@ export default function TourDetailPage() {
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button variant={"outline"} className="h-11 w-full justify-start text-left font-bold bg-muted/30 border-transparent hover:bg-muted/50 rounded-xl transition-all">
-                                                                    <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                                                                    {activity.date ? format(toDateSafe(activity.date), "dd/MM/yyyy") : <span>ເລືອກວັນທີ</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden shadow-2xl border-none">
-                                                                <Calendar mode="single" selected={toDateSafe(activity.date) || undefined} onSelect={date => updateItem('activities', activity.id, 'date', date?.toISOString())} initialFocus locale={th} />
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                        <Input placeholder="ວັນທີ" value={activity.date as string || ''} onChange={e => updateItem('activities', activity.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>

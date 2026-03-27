@@ -52,7 +52,7 @@ export function ExchangeRateCard({
     return (
         <div className="space-y-10">
             {/* Calculation Summary Section */}
-            <Card className="border-none shadow-soft rounded-[2rem] bg-white overflow-hidden relative group">
+            <Card className="border-none shadow-soft rounded-[2rem] bg-card overflow-hidden relative group">
                 <CardHeader className="pb-4 pt-8 px-8 border-b bg-muted/5">
                     <div className="flex items-center justify-between mb-6">
                         <CardTitle className="text-2xl font-black tracking-tight text-foreground">
@@ -148,7 +148,7 @@ export function ExchangeRateCard({
 
                 <div className="grid grid-cols-1 gap-4">
                     {currencies.map(from => (
-                        <Card key={from} className="border-none shadow-sm rounded-2xl bg-white overflow-hidden border border-border/50">
+                        <Card key={from} className="border-none shadow-sm rounded-2xl bg-card overflow-hidden border border-border/50">
                             <CardContent className="p-6 flex flex-col md:flex-row items-center gap-6">
                                 <div className="flex items-center gap-3 min-w-[120px]">
                                     <span className="text-lg font-black text-foreground">1 {from} =</span>
