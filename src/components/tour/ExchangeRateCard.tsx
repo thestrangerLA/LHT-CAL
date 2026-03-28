@@ -52,34 +52,34 @@ export function ExchangeRateCard({
     return (
         <div className="space-y-10">
             {/* Calculation Summary Section */}
-            <Card className="border-none shadow-soft rounded-[2rem] bg-card overflow-hidden relative group">
-                <CardHeader className="pb-4 pt-8 px-8 border-b bg-muted/5">
+            <Card className="border border-black/5 shadow-premium rounded-[2rem] bg-white overflow-hidden relative group">
+                <CardHeader className="pb-4 pt-8 px-8 border-b border-black/5 bg-black/[0.02]">
                     <div className="flex items-center justify-between mb-6">
-                        <CardTitle className="text-2xl font-black tracking-tight text-foreground">
+                        <CardTitle className="text-2xl font-black tracking-tight text-black">
                             ສະຫຼຸບການຄຳນວນ
                         </CardTitle>
-                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                        <div className="p-2 bg-black text-white rounded-xl">
                             <Calculator className="h-5 w-5" />
                         </div>
                     </div>
 
                     <div className="space-y-6">
                         <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">ເລືອກສະກຸນເງິນສະຫຼຸບ</Label>
+                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em]">ເລືອກສະກຸນເງິນສະຫຼຸບ</Label>
                             <Tabs value={selectedCurrency} onValueChange={(val) => setSelectedCurrency(val as Currency)} className="w-full">
-                                <TabsList className="grid grid-cols-4 bg-muted/30 p-1 rounded-2xl h-12 border border-transparent">
+                                <TabsList className="grid grid-cols-4 bg-black/5 p-1 rounded-2xl h-12 border border-transparent">
                                     {currencies.map(curr => (
-                                        <TabsTrigger key={curr} value={curr} className="rounded-xl font-black text-xs data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all">{curr}</TabsTrigger>
+                                        <TabsTrigger key={curr} value={curr} className="rounded-xl font-black text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-sm transition-all">{curr}</TabsTrigger>
                                     ))}
                                 </TabsList>
                             </Tabs>
                         </div>
 
                         <div className="space-y-1 pt-2">
-                            <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">ຕົ້ນທຶນລວມ (TOTAL COST)</p>
+                            <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em]">ຕົ້ນທຶນລວມ (TOTAL COST)</p>
                             <div className="flex items-baseline gap-3">
-                                <span className="text-5xl font-black tracking-tighter text-foreground">{formatNumber(Math.round(totalInSelected))}</span>
-                                <span className="text-xl font-black text-primary">{selectedCurrency}</span>
+                                <span className="text-5xl font-black tracking-tighter text-black">{formatNumber(Math.round(totalInSelected))}</span>
+                                <span className="text-xl font-black text-black">{selectedCurrency}</span>
                             </div>
                         </div>
                     </div>
@@ -88,46 +88,46 @@ export function ExchangeRateCard({
                 <CardContent className="p-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider">ຕົ້ນທຶນ/ຄົນ</Label>
-                            <div className="h-14 bg-muted/20 rounded-2xl flex items-center px-5 border border-transparent shadow-inner">
-                                <span className="text-2xl font-black tracking-tight text-foreground">{formatNumber(Math.round(costPerPerson))}</span>
-                                <span className="ml-2 text-sm font-bold text-muted-foreground">{selectedCurrency}</span>
+                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ຕົ້ນທຶນ/ຄົນ</Label>
+                            <div className="h-14 bg-black/5 rounded-2xl flex items-center px-5 border border-transparent shadow-inner">
+                                <span className="text-2xl font-black tracking-tight text-black">{formatNumber(Math.round(costPerPerson))}</span>
+                                <span className="ml-2 text-sm font-bold text-black/60">{selectedCurrency}</span>
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider">ກຳໄລຄາດໝາຍ (%)</Label>
+                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ກຳໄລຄາດໝາຍ (%)</Label>
                             <Input 
                                 type="number" 
                                 value={profitPercentage} 
                                 onChange={e => onProfitPercentageChange(parseFloat(e.target.value) || 0)} 
-                                className="h-14 bg-muted/20 border-transparent focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl font-black text-2xl text-foreground text-center shadow-inner" 
+                                className="h-14 bg-black/5 border-transparent focus:bg-white focus:ring-2 focus:ring-black/20 transition-all rounded-2xl font-black text-2xl text-black text-center shadow-inner" 
                             />
                         </div>
                     </div>
 
                     <div className="space-y-4">
-                        <Label className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider">ລາຄາຂາຍລວມ (TOTAL SELLING)</Label>
+                        <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ລາຄາຂາຍລວມ (TOTAL SELLING)</Label>
                         <div className="relative">
-                            <div className="h-20 bg-primary/5 rounded-2xl flex items-center px-8 border-2 border-primary/10 group-focus-within:bg-primary/10 transition-all shadow-sm">
-                                <span className="text-4xl font-black tracking-tight text-primary">{formatNumber(Math.round(totalWithProfit))}</span>
+                            <div className="h-20 bg-black/5 rounded-2xl flex items-center px-8 border-2 border-black/10 group-focus-within:bg-black/10 transition-all shadow-sm">
+                                <span className="text-4xl font-black tracking-tight text-black">{formatNumber(Math.round(totalWithProfit))}</span>
                             </div>
-                            <div className="absolute right-8 top-1/2 -translate-y-1/2 text-xl font-black text-primary/40">
+                            <div className="absolute right-8 top-1/2 -translate-y-1/2 text-xl font-black text-black/40">
                                 {selectedCurrency}
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-green-500/5 p-8 rounded-[2rem] border border-green-500/10 flex justify-between items-center shadow-sm">
+                    <div className="bg-black/5 p-8 rounded-[2rem] border border-black/10 flex justify-between items-center shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-green-500/10 rounded-2xl text-green-600">
+                            <div className="p-3 bg-black text-white rounded-2xl">
                                 <TrendingUp className="h-6 w-6" />
                             </div>
                             <div>
-                                <span className="text-xl font-black text-foreground block">ກຳໄລສຸດທິ</span>
-                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Net Profit</span>
+                                <span className="text-xl font-black text-black block">ກຳໄລສຸດທິ</span>
+                                <span className="text-[10px] font-black text-black/60 uppercase tracking-widest">Net Profit</span>
                             </div>
                         </div>
-                        <span className="text-3xl font-black tracking-tight text-green-600">
+                        <span className="text-3xl font-black tracking-tight text-black">
                             {formatNumber(Math.round(profitAmount))} <span className="text-lg">{selectedCurrency}</span>
                         </span>
                     </div>
@@ -138,20 +138,20 @@ export function ExchangeRateCard({
             <div className="space-y-6">
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                        <div className="p-2 bg-black text-white rounded-xl">
                             <ArrowRightLeft className="h-5 w-5" />
                         </div>
-                        <h2 className="text-2xl font-black tracking-tight text-foreground">ອັດຕາແລກປ່ຽນ</h2>
+                        <h2 className="text-2xl font-black tracking-tight text-black">ອັດຕາແລກປ່ຽນ</h2>
                     </div>
-                    <p className="text-sm font-bold text-muted-foreground ml-11">ລະບົບຈະບັນທຶກອັດຕະໂນມັດເມື່ອມີການປ່ຽນແປງ</p>
+                    <p className="text-sm font-bold text-black/60 ml-11">ລະບົບຈະບັນທຶກອັດຕະໂນມັດເມື່ອມີການປ່ຽນແປງ</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
                     {currencies.map(from => (
-                        <Card key={from} className="border-none shadow-sm rounded-2xl bg-card overflow-hidden border border-border/50">
+                        <Card key={from} className="border border-black/5 shadow-soft rounded-2xl bg-white overflow-hidden hover:shadow-premium transition-all">
                             <CardContent className="p-6 flex flex-col md:flex-row items-center gap-6">
                                 <div className="flex items-center gap-3 min-w-[120px]">
-                                    <span className="text-lg font-black text-foreground">1 {from} =</span>
+                                    <span className="text-lg font-black text-black">1 {from} =</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 w-full">
                                     {currencies.filter(to => to !== from).map(to => (
@@ -160,9 +160,9 @@ export function ExchangeRateCard({
                                                 type="number" 
                                                 value={rates[from][to]} 
                                                 onChange={e => handleRateChange(from, to, e.target.value)}
-                                                className="h-12 pr-12 bg-muted/30 border-transparent focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-black text-lg text-foreground shadow-inner"
+                                                className="h-12 pr-12 bg-black/5 border-transparent focus:bg-white focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-black text-lg text-black shadow-inner"
                                             />
-                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/60 uppercase tracking-widest">
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-black/40 uppercase tracking-widest">
                                                 {to}
                                             </div>
                                         </div>

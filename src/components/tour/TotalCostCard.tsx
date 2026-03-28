@@ -41,10 +41,10 @@ export function TotalCostCard({ totalsByCategory }: { totalsByCategory: Record<s
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-green-500/10 rounded-xl text-green-600">
+                <div className="p-2 bg-black text-white rounded-xl">
                     <Calculator className="h-5 w-5" />
                 </div>
-                <h2 className="text-xl font-black tracking-tight text-foreground">ສະຫຼຸບຕາມໝວດໝູ່</h2>
+                <h2 className="text-xl font-black tracking-tight text-black">ສະຫຼຸບຕາມໝວດໝູ່</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -56,17 +56,17 @@ export function TotalCostCard({ totalsByCategory }: { totalsByCategory: Record<s
                     const name = categoryNames[category] || category;
                     
                     return (
-                        <Card key={category} className="border-none shadow-sm rounded-2xl bg-card overflow-hidden hover:shadow-md transition-all group border border-border/50">
+                        <Card key={category} className="border border-black/5 shadow-soft rounded-2xl bg-white overflow-hidden hover:shadow-premium transition-all group">
                             <CardContent className="p-5 flex items-center gap-5">
-                                <div className="p-4 bg-green-500/10 rounded-full text-green-600 group-hover:scale-110 transition-transform duration-500">
+                                <div className="p-4 bg-black text-white rounded-full group-hover:scale-110 transition-transform duration-500">
                                     <Icon className="h-6 w-6" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{name}</p>
+                                    <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">{name}</p>
                                     <div className="flex flex-col">
                                         {filteredTotals.map(([currency, value]) => (
                                             <div key={currency} className="flex items-baseline gap-1">
-                                                <span className="text-lg font-black tracking-tight text-foreground">
+                                                <span className="text-lg font-black tracking-tight text-black">
                                                     {currencySymbols[currency as Currency]}{formatNumber(Math.round(value))}
                                                 </span>
                                             </div>

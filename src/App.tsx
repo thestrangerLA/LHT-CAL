@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import TourListPage from './pages/TourListPage';
 import TourDetailPage from './pages/TourDetailPage';
 import { Toaster } from "@/components/ui/sonner";

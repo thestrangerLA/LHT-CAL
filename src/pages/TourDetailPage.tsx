@@ -52,19 +52,19 @@ const initialRates: ExchangeRates = {
 };
 
 const CostCategoryContent = ({ title, icon, children, summary }: { title: string, icon: React.ReactNode, children: React.ReactNode, summary: React.ReactNode }) => (
-     <AccordionItem value={title.toLowerCase().replace(/\s/g, '-')} className="bg-card px-8 py-3 rounded-2xl border-none shadow-soft mb-6 overflow-hidden transition-all hover:shadow-md">
+     <AccordionItem value={title.toLowerCase().replace(/\s/g, '-')} className="bg-card px-8 py-3 rounded-2xl border border-black/5 shadow-soft mb-6 overflow-hidden transition-all hover:shadow-premium">
         <AccordionTrigger className="text-xl font-black py-5 hover:no-underline group">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm">
+            <div className="p-3 rounded-xl bg-black text-white transition-all duration-300 shadow-sm">
                 {icon}
             </div>
-            <span className="tracking-tight">{title}</span>
+            <span className="tracking-tight text-black">{title}</span>
           </div>
         </AccordionTrigger>
         <AccordionContent className="pt-4 pb-8">
             <div className="space-y-8">
                 {children}
-                <div className="pt-6 border-t border-dashed">
+                <div className="pt-6 border-t border-dashed border-black/10">
                     {summary}
                 </div>
             </div>
@@ -337,13 +337,13 @@ export default function TourDetailPage() {
         if (filteredTotals.length === 0) return null;
 
         return (
-            <div className="mt-6 rounded-2xl bg-primary/5 p-5 border border-primary/10">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/90 mb-3">ສະຫຼຸບຍອດໝວດນີ້:</p>
+            <div className="mt-6 rounded-2xl bg-black/5 p-5 border border-black/10">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/90 mb-3">ສະຫຼຸບຍອດໝວດນີ້:</p>
                 <div className="flex flex-wrap items-center gap-6">
                     {filteredTotals.map(([currency, value]) => (
                         <div key={currency} className="flex items-baseline gap-2">
-                            <span className="text-xs font-black text-primary/70">{currency}</span>
-                            <span className="text-xl font-black tracking-tight text-primary">{formatNumber(value)}</span>
+                            <span className="text-xs font-black text-black/70">{currency}</span>
+                            <span className="text-xl font-black tracking-tight text-black">{formatNumber(value)}</span>
                         </div>
                     ))}
                 </div>
@@ -356,8 +356,8 @@ export default function TourDetailPage() {
     }
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-muted/30">
-            <header className="sticky top-0 z-50 flex h-20 items-center gap-4 border-b bg-background/60 px-6 backdrop-blur-xl sm:px-10 print:hidden">
+        <div className="flex min-h-screen w-full flex-col bg-white">
+            <header className="sticky top-0 z-50 flex h-20 items-center gap-4 border-b bg-white px-6 backdrop-blur-xl sm:px-10 print:hidden">
                 <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50 transition-all active:scale-95" asChild>
                     <Link to="/tour/cost-calculator">
                         <ArrowLeft className="h-6 w-6" />
@@ -365,47 +365,47 @@ export default function TourDetailPage() {
                     </Link>
                 </Button>
                 <div className="flex-1">
-                    <h1 className="text-2xl font-black tracking-tighter flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-xl">
-                            <Calculator className="h-6 w-6 text-primary"/>
+                    <h1 className="text-2xl font-black tracking-tighter flex items-center gap-3 text-black">
+                        <div className="p-2 bg-black text-white rounded-xl">
+                            <Calculator className="h-6 w-6"/>
                         </div>
                         ລະບົບຄຳນວນຄ່າໃຊ້ຈ່າຍທົວ
                     </h1>
                 </div>
                  <div className="flex items-center gap-3">
-                    <Button variant="outline" size="lg" className="hidden sm:flex rounded-full px-6 font-bold border-2 hover:bg-muted/50 transition-all" onClick={() => window.print()}>
+                    <Button variant="outline" size="lg" className="hidden sm:flex rounded-full px-6 font-bold border border-black/10 hover:bg-black/5 transition-all text-black" onClick={() => window.print()}>
                         <Printer className="mr-2 h-5 w-5" />
                         ພິມ
                     </Button>
-                    <Button variant="ghost" size="lg" className="hidden sm:flex rounded-full px-6 font-bold text-destructive hover:bg-destructive/10 transition-all" onClick={handleDeleteCalculation}>
+                    <Button variant="ghost" size="lg" className="hidden sm:flex rounded-full px-6 font-bold text-red-600 hover:bg-red-50 transition-all" onClick={handleDeleteCalculation}>
                         <Trash2 className="mr-2 h-5 w-5" />
                         ລຶບ
                     </Button>
-                    <Button size="lg" onClick={handleSaveCalculation} className="rounded-full px-8 font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-95">
+                    <Button size="lg" onClick={handleSaveCalculation} className="rounded-full px-8 font-bold shadow-lg shadow-black/10 hover:shadow-premium transition-all active:scale-95 bg-black text-white">
                         <Save className="mr-2 h-5 w-5" />
                         ບັນທຶກຂໍ້ມູນ
                     </Button>
                 </div>
             </header>
 
-            <main className="flex w-full flex-1 flex-col gap-8 p-6 sm:px-10 sm:py-12 bg-[#F8F9FB] print:p-0 print:bg-white">
+            <main className="flex w-full flex-1 flex-col gap-8 p-6 sm:px-10 sm:py-12 bg-white print:p-0 print:bg-white">
                 <div className="w-full max-w-screen-2xl mx-auto">
                     <div className="w-full max-w-5xl mx-auto">
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <TabsList className="grid w-full grid-cols-5 h-14 bg-white/80 backdrop-blur-md rounded-2xl p-1 shadow-soft mb-6 border border-white/20 print:hidden">
-                                <TabsTrigger value="info" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                            <TabsList className="grid w-full grid-cols-5 h-14 bg-white rounded-2xl p-1 shadow-soft mb-6 border border-black/5 print:hidden">
+                                <TabsTrigger value="info" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                                     1. ຂໍ້ມູນພື້ນຖານ
                                 </TabsTrigger>
-                                <TabsTrigger value="costs" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                                <TabsTrigger value="costs" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                                     2. ຄ່າໃຊ້ຈ່າຍຕ່າງໆ
                                 </TabsTrigger>
-                                <TabsTrigger value="grand_totals" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                                <TabsTrigger value="grand_totals" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                                     3. ລວມຍອດຕົ້ນທຶນ
                                 </TabsTrigger>
-                                <TabsTrigger value="category_totals" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                                <TabsTrigger value="category_totals" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                                     4. ລາຍລະອຽດຕົ້ນທຶນ
                                 </TabsTrigger>
-                                <TabsTrigger value="calculation_summary" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                                <TabsTrigger value="calculation_summary" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                                     5. ສະຫຼຸບການຄຳນວນ
                                 </TabsTrigger>
                             </TabsList>
@@ -418,16 +418,16 @@ export default function TourDetailPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
                                         <CardTitle className="flex items-center gap-4 text-2xl font-black tracking-tight print:text-lg">
-                                            <div className="p-2 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20">
+                                            <div className="p-2 bg-black text-white rounded-xl shadow-lg shadow-black/20">
                                                 <MapPin className="h-5 w-5" />
                                             </div>
                                             ຂໍ້ມູນພື້ນຖານຂອງທົວ
                                         </CardTitle>
                                         <CardDescription className="text-sm font-medium text-muted-foreground/80">ກະລຸນາລະບຸຂໍ້ມູນເບື້ອງຕົ້ນຂອງກຸ່ມນັກທ່ອງທ່ຽວ</CardDescription>
                                     </div>
-                                    <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-xl bg-primary/5 border border-primary/10">
-                                        <Users className="h-4 w-4 text-primary" />
-                                        <span className="text-xs font-black text-primary">{tourInfo.numPeople} Travelers</span>
+                                    <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 border border-black/10">
+                                        <Users className="h-4 w-4 text-black" />
+                                        <span className="text-xs font-black text-black">{tourInfo.numPeople} Travelers</span>
                                     </div>
                                 </div>
                             </CardHeader>
@@ -436,22 +436,22 @@ export default function TourDetailPage() {
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">MOU Contact</Label>
                                         <div className="relative group">
-                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                            <Input placeholder="ຊື່ຜູ້ຕິດຕໍ່" value={tourInfo.mouContact} onChange={e => setTourInfo({...tourInfo, mouContact: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
+                                            <Input placeholder="ຊື່ຜູ້ຕິດຕໍ່" value={tourInfo.mouContact} onChange={e => setTourInfo({...tourInfo, mouContact: e.target.value})} className="h-14 pl-12 bg-white border-black/10 focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                         </div>
                                     </div>
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">Group Code</Label>
                                         <div className="relative group">
-                                            <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                            <Input placeholder="ລະຫັດກຸ່ມ" value={tourInfo.groupCode} onChange={e => setTourInfo({...tourInfo, groupCode: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-black text-primary" />
+                                            <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
+                                            <Input placeholder="ລະຫັດກຸ່ມ" value={tourInfo.groupCode} onChange={e => setTourInfo({...tourInfo, groupCode: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-black text-black" />
                                         </div>
                                     </div>
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ປະເທດປາຍທາງ</Label>
                                         <div className="relative group">
-                                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                            <Input placeholder="ປະເທດປາຍທາງ" value={tourInfo.destinationCountry} onChange={e => setTourInfo({...tourInfo, destinationCountry: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
+                                            <Input placeholder="ປະເທດປາຍທາງ" value={tourInfo.destinationCountry} onChange={e => setTourInfo({...tourInfo, destinationCountry: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                         </div>
                                     </div>
 
@@ -459,7 +459,7 @@ export default function TourDetailPage() {
 
                                     <div className="space-y-3 md:col-span-2">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ໂປຣແກຣມທົວ</Label>
-                                        <Input placeholder="ລະບຸຊື່ໂປຣແກຣມ ຫຼື ເສັ້ນທາງ" value={tourInfo.program} onChange={e => setTourInfo({...tourInfo, program: e.target.value})} className="h-14 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                        <Input placeholder="ລະບຸຊື່ໂປຣແກຣມ ຫຼື ເສັ້ນທາງ" value={tourInfo.program} onChange={e => setTourInfo({...tourInfo, program: e.target.value})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                     </div>
                                     
                                     <div className="hidden md:block" />
@@ -469,13 +469,13 @@ export default function TourDetailPage() {
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ໄລຍະເວລາ</Label>
                                         <div className="flex items-center gap-3">
                                             <div className="relative flex-1 group">
-                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                                <Input placeholder="ເລີ່ມ (ວັນທີ)" value={tourInfo.startDate as string || ''} onChange={e => setTourInfo({...tourInfo, startDate: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
+                                                <Input placeholder="ເລີ່ມ (ວັນທີ)" value={tourInfo.startDate as string || ''} onChange={e => setTourInfo({...tourInfo, startDate: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                             </div>
                                             <div className="h-px w-4 bg-muted-foreground/20" />
                                             <div className="relative flex-1 group">
-                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                                <Input placeholder="ສິ້ນສຸດ (ວັນທີ)" value={tourInfo.endDate as string || ''} onChange={e => setTourInfo({...tourInfo, endDate: e.target.value})} className="h-14 pl-12 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl font-bold" />
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
+                                                <Input placeholder="ສິ້ນສຸດ (ວັນທີ)" value={tourInfo.endDate as string || ''} onChange={e => setTourInfo({...tourInfo, endDate: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                             </div>
                                         </div>
                                     </div>
@@ -485,11 +485,11 @@ export default function TourDetailPage() {
                                             <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ວັນ / ຄືນ</Label>
                                             <div className="flex gap-3">
                                                 <div className="relative flex-1">
-                                                    <Input type="number" value={tourInfo.numDays} onChange={e => setTourInfo({...tourInfo, numDays: Number(e.target.value) || 1})} className="h-14 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl text-center font-black text-lg" />
+                                                    <Input type="number" value={tourInfo.numDays} onChange={e => setTourInfo({...tourInfo, numDays: Number(e.target.value) || 1})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl text-center font-black text-lg" />
                                                     <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase text-muted-foreground/40">Days</span>
                                                 </div>
                                                 <div className="relative flex-1">
-                                                    <Input type="number" value={tourInfo.numNights} onChange={e => setTourInfo({...tourInfo, numNights: Number(e.target.value) || 0})} className="h-14 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl text-center font-black text-lg" />
+                                                    <Input type="number" value={tourInfo.numNights} onChange={e => setTourInfo({...tourInfo, numNights: Number(e.target.value) || 0})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl text-center font-black text-lg" />
                                                     <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase text-muted-foreground/40">Nights</span>
                                                 </div>
                                             </div>
@@ -497,7 +497,7 @@ export default function TourDetailPage() {
                                         <div className="space-y-3">
                                             <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ຈຳນວນຄົນ</Label>
                                             <div className="relative">
-                                                <Input type="number" value={tourInfo.numPeople} onChange={e => setTourInfo({...tourInfo, numPeople: Number(e.target.value) || 1})} className="h-14 bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl text-center font-black text-lg text-primary" />
+                                                <Input type="number" value={tourInfo.numPeople} onChange={e => setTourInfo({...tourInfo, numPeople: Number(e.target.value) || 1})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl text-center font-black text-lg text-black" />
                                                 <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase text-muted-foreground/40">Pax</span>
                                             </div>
                                         </div>
@@ -507,11 +507,11 @@ export default function TourDetailPage() {
 
                                     <div className="space-y-3 md:col-span-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ຂໍ້ມູນເພີ່ມເຕີມ</Label>
-                                        <Textarea placeholder="ຕົວຢ່າງ ກຸ່ມຄອບຄົວ, ຄູ່ຮັກ, ຄວາມຕ້ອງການພິເສດ..." className="min-h-[140px] bg-muted/30 border-transparent focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all rounded-[2rem] p-6 font-medium leading-relaxed" value={tourInfo.travelerInfo} onChange={e => setTourInfo({...tourInfo, travelerInfo: e.target.value})} />
+                                        <Textarea placeholder="ຕົວຢ່າງ ກຸ່ມຄອບຄົວ, ຄູ່ຮັກ, ຄວາມຕ້ອງການພິເສດ..." className="min-h-[140px] bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-[2rem] p-6 font-medium leading-relaxed" value={tourInfo.travelerInfo} onChange={e => setTourInfo({...tourInfo, travelerInfo: e.target.value})} />
                                     </div>
                                 </div>
                                 <div className="flex justify-end pt-6 print:hidden">
-                                    <Button onClick={() => setActiveTab('costs')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
+                                    <Button onClick={() => setActiveTab('costs')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all bg-black text-white">
                                         ຕໍ່ໄປ: ປ້ອນຄ່າໃຊ້ຈ່າຍ
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
@@ -532,14 +532,14 @@ export default function TourDetailPage() {
                                             <Card key={acc.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ທີ່ພັກ
                                                     </CardTitle>
                                                     <div className="flex gap-1">
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-primary/10" onClick={() => toggleItemVisibility(acc.id)}>
-                                                            {itemVisibility[acc.id] === false ? <EyeOff className="h-4 w-4 text-muted-foreground"/> : <Eye className="h-4 w-4 text-primary"/>}
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-black/10" onClick={() => toggleItemVisibility(acc.id)}>
+                                                            {itemVisibility[acc.id] === false ? <EyeOff className="h-4 w-4 text-muted-foreground"/> : <Eye className="h-4 w-4 text-black"/>}
                                                         </Button>
                                                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('accommodations', acc.id)}>
                                                             <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -551,13 +551,13 @@ export default function TourDetailPage() {
                                                         <div className="grid md:grid-cols-2 gap-6">
                                                             <div className="space-y-2.5">
                                                                 <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ທີ່ພັກ</Label>
-                                                                <Input placeholder="ຊື່ທີ່ພັກ" value={acc.name} onChange={e => updateItem('accommodations', acc.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                                <Input placeholder="ຊື່ທີ່ພັກ" value={acc.name} onChange={e => updateItem('accommodations', acc.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                             </div>
                                                             <div className="space-y-2.5">
                                                                 <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີເຊັກອິນ</Label>
                                                                 <div className="relative group">
-                                                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors z-10" />
-                                                                    <Input placeholder="ເລືອກວັນທີ" value={acc.checkInDate as string || ''} onChange={e => updateItem('accommodations', acc.id, 'checkInDate', e.target.value)} className="h-11 pl-10 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors z-10" />
+                                                                    <Input placeholder="ເລືອກວັນທີ" value={acc.checkInDate as string || ''} onChange={e => updateItem('accommodations', acc.id, 'checkInDate', e.target.value)} className="h-11 pl-10 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -567,17 +567,17 @@ export default function TourDetailPage() {
                                                         <div className="space-y-4">
                                                             <div className="flex items-center justify-between">
                                                                 <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຍລະອຽດຫ້ອງ</Label>
-                                                                <Button variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase tracking-wider text-primary hover:bg-primary/10 rounded-lg" onClick={() => addRoom(acc.id)}>
+                                                                <Button variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase tracking-wider text-black hover:bg-black/10 rounded-lg" onClick={() => addRoom(acc.id)}>
                                                                     <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>
                                                                     ເພີ່ມຫ້ອງ
                                                                 </Button>
                                                             </div>
                                                             <div className="space-y-3">
                                                                 {acc.rooms.map((room, rIdx) => (
-                                                                    <div key={room.id} className="flex flex-wrap items-end gap-3 p-4 rounded-xl bg-muted/20 border border-transparent hover:border-primary/10 transition-all relative group">
+                                                                    <div key={room.id} className="flex flex-wrap items-end gap-3 p-4 rounded-xl bg-muted/20 border border-transparent hover:border-black/10 transition-all relative group">
                                                                         <div className="w-40 space-y-1.5">
                                                                             <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ວັນທີ</Label>
-                                                                            <Input placeholder="ວັນທີ" value={room.date as string || ''} onChange={e => updateRoom(acc.id, room.id, 'date', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-lg font-bold text-xs" />
+                                                                            <Input placeholder="ວັນທີ" value={room.date as string || ''} onChange={e => updateRoom(acc.id, room.id, 'date', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-lg font-bold text-xs" />
                                                                         </div>
                                                                         <div className="flex-1 min-w-[150px] space-y-1.5">
                                                                             <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ປະເພດ</Label>
@@ -615,7 +615,7 @@ export default function TourDetailPage() {
                                                 )}
                                             </Card>
                                         ))}
-                                        <Button onClick={addAccommodation} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addAccommodation} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມທີ່ພັກ
                                         </Button>
@@ -629,7 +629,7 @@ export default function TourDetailPage() {
                                             <Card key={trip.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ລົດ
@@ -641,31 +641,31 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເສັ້ນທາງ/ປະເພດລົດ</Label>
-                                                        <Input placeholder="ວຽງຈັນ - ວັງວຽງ (ລົດຕູ້)" value={trip.route} onChange={e => updateItem('trips', trip.id, 'route', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວຽງຈັນ - ວັງວຽງ (ລົດຕູ້)" value={trip.route} onChange={e => updateItem('trips', trip.id, 'route', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={trip.date as string || ''} onChange={e => updateItem('trips', trip.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={trip.date as string || ''} onChange={e => updateItem('trips', trip.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຄັນ</Label>
-                                                        <Input type="number" value={trip.numVehicles} onChange={e => updateItem('trips', trip.id, 'numVehicles', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={trip.numVehicles} onChange={e => updateItem('trips', trip.id, 'numVehicles', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນ</Label>
-                                                        <Input type="number" value={trip.numDays} onChange={e => updateItem('trips', trip.id, 'numDays', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={trip.numDays} onChange={e => updateItem('trips', trip.id, 'numDays', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ຄັນ/ວັນ</Label>
-                                                        <Input type="number" value={trip.pricePerVehicle} onChange={e => updateItem('trips', trip.id, 'pricePerVehicle', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={trip.pricePerVehicle} onChange={e => updateItem('trips', trip.id, 'pricePerVehicle', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={trip.currency} onValueChange={v => updateItem('trips', trip.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -674,7 +674,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addTrip} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addTrip} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າຂົນສົ່ງ
                                         </Button>
@@ -688,7 +688,7 @@ export default function TourDetailPage() {
                                             <Card key={flight.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ຖ້ຽວບິນ
@@ -700,28 +700,28 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-3 gap-6">
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຈາກ</Label>
-                                                        <Input value={flight.from} onChange={e => updateItem('flights', flight.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={flight.from} onChange={e => updateItem('flights', flight.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ໄປ</Label>
-                                                        <Input value={flight.to} onChange={e => updateItem('flights', flight.id, 'to', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={flight.to} onChange={e => updateItem('flights', flight.id, 'to', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີອອກເດີນທາງ</Label>
-                                                        <Input placeholder="ວັນທີ" value={flight.departureDate as string || ''} onChange={e => updateItem('flights', flight.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={flight.departureDate as string || ''} onChange={e => updateItem('flights', flight.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເວລາ</Label>
-                                                        <Input value={flight.departureTime} onChange={e => updateItem('flights', flight.id, 'departureTime', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={flight.departureTime} onChange={e => updateItem('flights', flight.id, 'departureTime', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ຄົນ</Label>
-                                                        <Input type="number" value={flight.pricePerPerson} onChange={e => updateItem('flights', flight.id, 'pricePerPerson', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={flight.pricePerPerson} onChange={e => updateItem('flights', flight.id, 'pricePerPerson', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຈຳນວນຄົນ</Label>
-                                                        <Input type="number" value={flight.numPeople} onChange={e => updateItem('flights', flight.id, 'numPeople', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={flight.numPeople} onChange={e => updateItem('flights', flight.id, 'numPeople', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
@@ -729,7 +729,7 @@ export default function TourDetailPage() {
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={flight.currency} onValueChange={v => updateItem('flights', flight.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -738,7 +738,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addFlight} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addFlight} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າປີ້ຍົນ
                                         </Button>
@@ -752,7 +752,7 @@ export default function TourDetailPage() {
                                             <Card key={ticket.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ປີ້ລົດໄຟ
@@ -764,36 +764,36 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-3 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເສັ້ນທາງ</Label>
-                                                        <Input placeholder="ຈາກ - ໄປ" value={ticket.from} onChange={e => updateItem('trainTickets', ticket.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ຈາກ - ໄປ" value={ticket.from} onChange={e => updateItem('trainTickets', ticket.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີອອກເດີນທາງ</Label>
-                                                        <Input placeholder="ວັນທີ" value={ticket.departureDate as string || ''} onChange={e => updateItem('trainTickets', ticket.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={ticket.departureDate as string || ''} onChange={e => updateItem('trainTickets', ticket.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເວລາ</Label>
-                                                        <Input value={ticket.departureTime} onChange={e => updateItem('trainTickets', ticket.id, 'departureTime', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={ticket.departureTime} onChange={e => updateItem('trainTickets', ticket.id, 'departureTime', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊັ້ນປີ້</Label>
-                                                        <Input value={ticket.ticketClass} onChange={e => updateItem('trainTickets', ticket.id, 'ticketClass', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={ticket.ticketClass} onChange={e => updateItem('trainTickets', ticket.id, 'ticketClass', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຈຳນວນປີ້</Label>
-                                                        <Input type="number" value={ticket.numTickets} onChange={e => updateItem('trainTickets', ticket.id, 'numTickets', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={ticket.numTickets} onChange={e => updateItem('trainTickets', ticket.id, 'numTickets', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ປີ້</Label>
-                                                        <Input type="number" value={ticket.pricePerTicket} onChange={e => updateItem('trainTickets', ticket.id, 'pricePerTicket', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={ticket.pricePerTicket} onChange={e => updateItem('trainTickets', ticket.id, 'pricePerTicket', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={ticket.currency} onValueChange={v => updateItem('trainTickets', ticket.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -802,7 +802,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addTrainTicket} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addTrainTicket} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າປີ້ລົດໄຟ
                                         </Button>
@@ -816,7 +816,7 @@ export default function TourDetailPage() {
                                             <Card key={fee.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ສະຖານທີ່
@@ -828,27 +828,27 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ສະຖານທີ່</Label>
-                                                        <Input value={fee.locationName} onChange={e => updateItem('entranceFees', fee.id, 'locationName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={fee.locationName} onChange={e => updateItem('entranceFees', fee.id, 'locationName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={fee.date as string || ''} onChange={e => updateItem('entranceFees', fee.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={fee.date as string || ''} onChange={e => updateItem('entranceFees', fee.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
-                                                        <Input type="number" value={fee.pax} onChange={e => updateItem('entranceFees', fee.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={fee.pax} onChange={e => updateItem('entranceFees', fee.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
-                                                        <Input type="number" value={fee.price} onChange={e => updateItem('entranceFees', fee.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={fee.price} onChange={e => updateItem('entranceFees', fee.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={fee.currency} onValueChange={v => updateItem('entranceFees', fee.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -857,7 +857,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addEntranceFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addEntranceFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າເຂົ້າຊົມ
                                         </Button>
@@ -871,7 +871,7 @@ export default function TourDetailPage() {
                                             <Card key={meal.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ລາຍການອາຫານ
@@ -884,15 +884,15 @@ export default function TourDetailPage() {
                                                     <div className="grid md:grid-cols-3 gap-6">
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ລາຍການ</Label>
-                                                            <Input value={meal.name} onChange={e => updateItem('meals', meal.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                            <Input value={meal.name} onChange={e => updateItem('meals', meal.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                            <Input placeholder="ວັນທີ" value={meal.date as string || ''} onChange={e => updateItem('meals', meal.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                            <Input placeholder="ວັນທີ" value={meal.date as string || ''} onChange={e => updateItem('meals', meal.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
-                                                            <Input type="number" value={meal.pax} onChange={e => updateItem('meals', meal.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                            <Input type="number" value={meal.pax} onChange={e => updateItem('meals', meal.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                     </div>
 
@@ -901,15 +901,15 @@ export default function TourDetailPage() {
                                                     <div className="grid grid-cols-3 gap-6">
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເຊົ້າ (ມື້)</Label>
-                                                            <Input type="number" value={meal.breakfast} onChange={e => updateItem('meals', meal.id, 'breakfast', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                            <Input type="number" value={meal.breakfast} onChange={e => updateItem('meals', meal.id, 'breakfast', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ທ່ຽງ (ມື້)</Label>
-                                                            <Input type="number" value={meal.lunch} onChange={e => updateItem('meals', meal.id, 'lunch', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                            <Input type="number" value={meal.lunch} onChange={e => updateItem('meals', meal.id, 'lunch', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ແລງ (ມື້)</Label>
-                                                            <Input type="number" value={meal.dinner} onChange={e => updateItem('meals', meal.id, 'dinner', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                            <Input type="number" value={meal.dinner} onChange={e => updateItem('meals', meal.id, 'dinner', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                     </div>
 
@@ -918,12 +918,12 @@ export default function TourDetailPage() {
                                                     <div className="grid md:grid-cols-2 gap-6">
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ມື້</Label>
-                                                            <Input type="number" value={meal.pricePerMeal} onChange={e => updateItem('meals', meal.id, 'pricePerMeal', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                            <Input type="number" value={meal.pricePerMeal} onChange={e => updateItem('meals', meal.id, 'pricePerMeal', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                             <Select value={meal.currency} onValueChange={v => updateItem('meals', meal.id, 'currency', v)}>
-                                                                <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                                <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                                 <SelectContent className="border-none shadow-xl rounded-xl">
                                                                     {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                                 </SelectContent>
@@ -933,7 +933,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addMealCost} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addMealCost} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າອາຫານ
                                         </Button>
@@ -947,7 +947,7 @@ export default function TourDetailPage() {
                                             <Card key={guide.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ໄກ້
@@ -959,31 +959,31 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ໄກ້</Label>
-                                                        <Input value={guide.guideName} onChange={e => updateItem('guides', guide.id, 'guideName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={guide.guideName} onChange={e => updateItem('guides', guide.id, 'guideName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={guide.date as string || ''} onChange={e => updateItem('guides', guide.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={guide.date as string || ''} onChange={e => updateItem('guides', guide.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຄົນ</Label>
-                                                        <Input type="number" value={guide.numGuides} onChange={e => updateItem('guides', guide.id, 'numGuides', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={guide.numGuides} onChange={e => updateItem('guides', guide.id, 'numGuides', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນ</Label>
-                                                        <Input type="number" value={guide.numDays} onChange={e => updateItem('guides', guide.id, 'numDays', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={guide.numDays} onChange={e => updateItem('guides', guide.id, 'numDays', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ວັນ</Label>
-                                                        <Input type="number" value={guide.pricePerDay} onChange={e => updateItem('guides', guide.id, 'pricePerDay', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={guide.pricePerDay} onChange={e => updateItem('guides', guide.id, 'pricePerDay', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={guide.currency} onValueChange={v => updateItem('guides', guide.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -992,7 +992,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addGuideFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addGuideFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າໄກ້
                                         </Button>
@@ -1006,7 +1006,7 @@ export default function TourDetailPage() {
                                             <Card key={doc.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ເອກະສານ
@@ -1018,27 +1018,27 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ເອກະສານ</Label>
-                                                        <Input value={doc.documentName} onChange={e => updateItem('documents', doc.id, 'documentName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={doc.documentName} onChange={e => updateItem('documents', doc.id, 'documentName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={doc.date as string || ''} onChange={e => updateItem('documents', doc.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={doc.date as string || ''} onChange={e => updateItem('documents', doc.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
-                                                        <Input type="number" value={doc.pax} onChange={e => updateItem('documents', doc.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={doc.pax} onChange={e => updateItem('documents', doc.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
-                                                        <Input type="number" value={doc.price} onChange={e => updateItem('documents', doc.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={doc.price} onChange={e => updateItem('documents', doc.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={doc.currency} onValueChange={v => updateItem('documents', doc.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -1047,7 +1047,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addDocumentFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addDocumentFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມຄ່າເອກະສານ
                                         </Button>
@@ -1061,7 +1061,7 @@ export default function TourDetailPage() {
                                             <Card key={pkg.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ແພັກເກດ
@@ -1073,23 +1073,23 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ແພັກເກດ</Label>
-                                                        <Input value={pkg.name} onChange={e => updateItem('overseasPackages', pkg.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={pkg.name} onChange={e => updateItem('overseasPackages', pkg.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={pkg.date as string || ''} onChange={e => updateItem('overseasPackages', pkg.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={pkg.date as string || ''} onChange={e => updateItem('overseasPackages', pkg.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
-                                                        <Input type="number" value={pkg.price} onChange={e => updateItem('overseasPackages', pkg.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={pkg.price} onChange={e => updateItem('overseasPackages', pkg.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={pkg.currency} onValueChange={v => updateItem('overseasPackages', pkg.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -1098,7 +1098,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addOverseasPackage} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addOverseasPackage} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມແພັກເກດ
                                         </Button>
@@ -1112,7 +1112,7 @@ export default function TourDetailPage() {
                                             <Card key={activity.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
                                                 <CardHeader className="flex-row items-center justify-between px-6 py-4 bg-muted/20 border-b">
                                                     <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-[10px] text-primary">
+                                                        <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
                                                         ກິດຈະກຳ
@@ -1124,27 +1124,27 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ກິດຈະກຳ</Label>
-                                                        <Input value={activity.name} onChange={e => updateItem('activities', activity.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input value={activity.name} onChange={e => updateItem('activities', activity.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={activity.date as string || ''} onChange={e => updateItem('activities', activity.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input placeholder="ວັນທີ" value={activity.date as string || ''} onChange={e => updateItem('activities', activity.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
-                                                        <Input type="number" value={activity.pax} onChange={e => updateItem('activities', activity.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Input type="number" value={activity.pax} onChange={e => updateItem('activities', activity.id, 'pax', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
-                                                        <Input type="number" value={activity.price} onChange={e => updateItem('activities', activity.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold" />
+                                                        <Input type="number" value={activity.price} onChange={e => updateItem('activities', activity.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
                                                         <Select value={activity.currency} onValueChange={v => updateItem('activities', activity.id, 'currency', v)}>
-                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                                                            <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
                                                                 {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
                                                             </SelectContent>
@@ -1153,7 +1153,7 @@ export default function TourDetailPage() {
                                                 </CardContent>
                                             </Card>
                                         ))}
-                                        <Button onClick={addActivity} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-primary hover:bg-primary/5 text-primary font-black uppercase tracking-widest rounded-xl transition-all">
+                                        <Button onClick={addActivity} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
                                             ເພີ່ມກິດຈະກຳ
                                         </Button>
@@ -1165,7 +1165,7 @@ export default function TourDetailPage() {
                                     <ArrowLeft className="mr-2 h-4 w-4" />
                                     ກັບຄືນ
                                 </Button>
-                                <Button onClick={() => setActiveTab('grand_totals')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
+                                <Button onClick={() => setActiveTab('grand_totals')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
                                     ຕໍ່ໄປ: ລວມຍອດຕົ້ນທຶນ
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
@@ -1179,7 +1179,7 @@ export default function TourDetailPage() {
                                         <Card className="border-none shadow-soft rounded-[2rem] bg-white overflow-hidden">
                                             <CardHeader className="pb-4 pt-6 px-6 border-b bg-muted/5">
                                                 <CardTitle className="text-lg font-black tracking-tight flex items-center gap-3">
-                                                    <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                                                    <div className="p-1.5 bg-black/10 rounded-lg text-black">
                                                         <Calculator className="h-4 w-4" />
                                                     </div>
                                                     ລວມຍອດຕົ້ນທຶນ (Grand Totals)
@@ -1188,8 +1188,8 @@ export default function TourDetailPage() {
                                             <CardContent className="p-8">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     {(Object.keys(grandTotals) as Currency[]).map(currency => (
-                                                        <div key={currency} className="p-8 rounded-3xl bg-muted/30 border border-transparent hover:border-primary/20 transition-all hover:shadow-md group">
-                                                            <p className="text-xs font-black uppercase tracking-[0.2em] text-foreground mb-3 group-hover:text-primary transition-colors">{currency}</p>
+                                                        <div key={currency} className="p-8 rounded-3xl bg-muted/30 border border-transparent hover:border-black/20 transition-all hover:shadow-md group">
+                                                            <p className="text-xs font-black uppercase tracking-[0.2em] text-foreground mb-3 group-hover:text-black transition-colors">{currency}</p>
                                                             <p className="text-4xl font-black tracking-tighter">{formatNumber(grandTotals[currency])}</p>
                                                         </div>
                                                     ))}
@@ -1202,7 +1202,7 @@ export default function TourDetailPage() {
                                             <ArrowLeft className="mr-2 h-4 w-4" />
                                             ກັບຄືນ
                                         </Button>
-                                        <Button onClick={() => setActiveTab('category_totals')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
+                                        <Button onClick={() => setActiveTab('category_totals')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
                                             ຕໍ່ໄປ: ລາຍລະອຽດຕົ້ນທຶນ
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </Button>
@@ -1219,7 +1219,7 @@ export default function TourDetailPage() {
                                             <ArrowLeft className="mr-2 h-4 w-4" />
                                             ກັບຄືນ
                                         </Button>
-                                        <Button onClick={() => setActiveTab('calculation_summary')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
+                                        <Button onClick={() => setActiveTab('calculation_summary')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
                                             ຕໍ່ໄປ: ສະຫຼຸບການຄຳນວນ
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </Button>
@@ -1243,7 +1243,7 @@ export default function TourDetailPage() {
                                             <ArrowLeft className="mr-2 h-4 w-4" />
                                             ກັບຄືນ
                                         </Button>
-                                        <Button onClick={handleSaveCalculation} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
+                                        <Button onClick={handleSaveCalculation} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
                                             <Save className="mr-2 h-4 w-4" />
                                             ບັນທຶກຂໍ້ມູນ
                                         </Button>
