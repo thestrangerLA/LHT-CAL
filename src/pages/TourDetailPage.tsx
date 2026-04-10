@@ -96,29 +96,29 @@ export default function TourDetailPage() {
     useEffect(() => {
         if (!calculationId || !user) return;
 
-        const docRef = doc(db, 'tours', calculationId);
+        const docRef = doc(db, 'tourCalculations', calculationId);
         const unsubscribe = onSnapshot(docRef, (snapshot) => {
             if (snapshot.exists()) {
-                const data = snapshot.data() as SavedCalculation & { uid: string };
+                const data = snapshot.data() as SavedCalculation;
                 
                 setTourInfo(data.tourInfo || {
                     mouContact: '', groupCode: '', destinationCountry: '', program: '',
-                    numDays: 1, numNights: 0, numPeople: 1, travelerInfo: ''
+                    numDays: data.days || 1, numNights: 0, numPeople: 1, travelerInfo: ''
                 });
                 setAllCosts({
                     accommodations: [], trips: [], flights: [], trainTickets: [],
                     entranceFees: [], meals: [], guides: [], documents: [], overseasPackages: [], activities: [],
-                    ...(data.allCosts || {})
+                    ...(data.costs || data.allCosts || {})
                 });
                 if (data.exchangeRates) setExchangeRates(data.exchangeRates);
-                if (data.profitPercentage !== undefined) setProfitPercentage(data.profitPercentage);
+                if (data.markupPercentage !== undefined) setProfitPercentage(data.markupPercentage);
                 setLoading(false);
             } else {
                 toast.error("Calculation not found.");
                 navigate('/tour/cost-calculator');
             }
         }, (error) => {
-            handleFirestoreError(error, OperationType.GET, `tours/${calculationId}`);
+            handleFirestoreError(error, OperationType.GET, `tourCalculations/${calculationId}`);
         });
 
         return () => unsubscribe();
@@ -131,21 +131,24 @@ export default function TourDetailPage() {
     const handleSaveCalculation = async () => {
         if (!calculationId || !user) return;
         
-        const docRef = doc(db, 'tours', calculationId);
+        const docRef = doc(db, 'tourCalculations', calculationId);
         const dataToSave = {
             uid: user.uid,
+            name: tourInfo.program || 'Unnamed Tour',
+            days: tourInfo.numDays,
+            markupPercentage: profitPercentage,
+            markupAmount: 0, // Could be calculated
             tourInfo: JSON.parse(JSON.stringify(tourInfo)),
-            allCosts: JSON.parse(JSON.stringify(allCosts)),
+            costs: JSON.parse(JSON.stringify(allCosts)),
             exchangeRates: JSON.parse(JSON.stringify(exchangeRates)),
-            profitPercentage: profitPercentage,
-            savedAt: serverTimestamp(),
+            createdAt: serverTimestamp(),
         };
 
         try {
             await setDoc(docRef, dataToSave, { merge: true });
             toast.success("ບັນທຶກການຄຳນວນສຳເລັດ");
         } catch (error) {
-            handleFirestoreError(error, OperationType.WRITE, `tours/${calculationId}`);
+            handleFirestoreError(error, OperationType.WRITE, `tourCalculations/${calculationId}`);
         }
     };
     
@@ -153,12 +156,12 @@ export default function TourDetailPage() {
         if (!calculationId || !user) return;
         if (window.confirm("ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນການຄຳນວນນີ້?")) {
             try {
-                const docRef = doc(db, 'tours', calculationId);
+                const docRef = doc(db, 'tourCalculations', calculationId);
                 await deleteDoc(docRef);
                 navigate('/tour/cost-calculator');
                 toast.success("ລຶບຂໍ້ມູນສຳເລັດ");
             } catch (error) {
-                handleFirestoreError(error, OperationType.DELETE, `tours/${calculationId}`);
+                handleFirestoreError(error, OperationType.DELETE, `tourCalculations/${calculationId}`);
             }
         }
     };

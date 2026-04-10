@@ -1,39 +1,42 @@
 {
   "entities": {
-    "Tour": {
+    "TourCalculation": {
       "title": "Tour Calculation",
-      "description": "A saved tour cost calculation including tour info, costs, and exchange rates.",
+      "description": "A saved tour cost calculation",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "uid": { "type": "string", "description": "The user ID of the owner" },
-        "savedAt": { "type": "string", "format": "date-time" },
-        "tourInfo": {
-          "type": "object",
-          "properties": {
-            "mouContact": { "type": "string" },
-            "groupCode": { "type": "string" },
-            "destinationCountry": { "type": "string" },
-            "program": { "type": "string" },
-            "startDate": { "type": "string", "format": "date-time" },
-            "endDate": { "type": "string", "format": "date-time" },
-            "numDays": { "type": "number" },
-            "numNights": { "type": "number" },
-            "numPeople": { "type": "number" },
-            "travelerInfo": { "type": "string" }
-          }
-        },
-        "allCosts": { "type": "object" },
+        "name": { "type": "string" },
+        "days": { "type": "number" },
+        "markupPercentage": { "type": "number" },
+        "markupAmount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
         "exchangeRates": { "type": "object" },
-        "profitPercentage": { "type": "number" }
+        "costs": { "type": "object" },
+        "uid": { "type": "string" }
       },
-      "required": ["uid", "tourInfo", "allCosts"]
+      "required": ["uid", "name", "days", "createdAt"]
     }
   },
   "firestore": {
-    "/tours/{tourId}": {
-      "schema": "Tour",
-      "description": "Collection of saved tour calculations"
+    "/tourCalculations/{calculationId}": {
+      "schema": "TourCalculation",
+      "description": "Collection of tour cost calculations"
+    },
+    "/stockItems/{itemId}": {
+      "schema": "object",
+      "description": "Collection of stock items"
+    },
+    "/tourPrograms/{programId}": {
+      "schema": "object",
+      "description": "Collection of tour programs"
+    },
+    "/tourCostItems/{itemId}": {
+      "schema": "object",
+      "description": "Collection of tour cost items"
+    },
+    "/tourIncomeItems/{itemId}": {
+      "schema": "object",
+      "description": "Collection of tour income items"
     }
   }
 }

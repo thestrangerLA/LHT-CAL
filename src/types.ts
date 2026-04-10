@@ -150,9 +150,15 @@ export interface ExchangeRates {
 
 export interface SavedCalculation {
     id: string;
-    savedAt: DateValue;
-    tourInfo: TourInfo;
-    allCosts: TourCosts;
-    exchangeRates?: ExchangeRates;
-    profitPercentage?: number;
+    uid: string;
+    name: string;
+    days: number;
+    markupPercentage: number;
+    markupAmount: number;
+    createdAt: DateValue;
+    exchangeRates: ExchangeRates;
+    costs: TourCosts;
+    allCosts?: TourCosts; // Legacy support
+    tourInfo?: TourInfo; // Keep for backward compatibility or extra info
+    savedAt?: DateValue; // Legacy support
 }

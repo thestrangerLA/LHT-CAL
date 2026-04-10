@@ -22,18 +22,53 @@ export default function TourCostCalculatorListPage() {
     useEffect(() => {
         if (!user) return;
         setCalculationsLoading(true);
-        const toursColRef = collection(db, 'tours');
-        const q = query(
-            toursColRef, 
-            orderBy('savedAt', 'desc')
-        );
+        const toursColRef = collection(db, 'tourCalculations');
+        
+        // Admin can see everything, others only their own
+        const isAdmin = user.email === "laohugtravelwork@gmail.com";
+        
+        let q;
+        if (isAdmin) {
+            // No where filter for admin to see all data
+            q = query(toursColRef);
+        } else {
+            q = query(
+                toursColRef, 
+                where('uid', '==', user.uid),
+                orderBy('createdAt', 'desc')
+            );
+        }
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const calcs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SavedCalculation));
+            const calcs = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return { 
+                    id: doc.id, 
+                    ...data,
+                    // Handle legacy data structure
+                    costs: data.costs || data.allCosts || {
+                        accommodations: [], trips: [], flights: [], trainTickets: [],
+                        entranceFees: [], meals: [], guides: [], documents: [], overseasPackages: [], activities: []
+                    }
+                } as SavedCalculation;
+            });
+            
+            // Sort manually if we didn't use orderBy (for admin)
+            if (isAdmin) {
+                calcs.sort((a, b) => {
+                    const dateA = a.createdAt || a.savedAt || 0;
+                    const dateB = b.createdAt || b.savedAt || 0;
+                    // Handle Firestore Timestamps
+                    const timeA = typeof dateA === 'object' && 'toMillis' in dateA ? dateA.toMillis() : new Date(dateA as string).getTime();
+                    const timeB = typeof dateB === 'object' && 'toMillis' in dateB ? dateB.toMillis() : new Date(dateB as string).getTime();
+                    return timeB - timeA;
+                });
+            }
+            
             setSavedCalculations(calcs);
             setCalculationsLoading(false);
         }, (error) => {
-            handleFirestoreError(error, OperationType.LIST, 'tours');
+            handleFirestoreError(error, OperationType.LIST, 'tourCalculations');
         });
 
         return () => unsubscribe();
@@ -41,16 +76,14 @@ export default function TourCostCalculatorListPage() {
 
     const filteredCalculations = useMemo(() => {
         return savedCalculations.filter(calc => {
+            const name = calc.name?.toLowerCase() || '';
             const groupCode = calc.tourInfo?.groupCode?.toLowerCase() || '';
-            const program = calc.tourInfo?.program?.toLowerCase() || '';
-            const destination = calc.tourInfo?.destinationCountry?.toLowerCase() || '';
-            return groupCode.includes(searchQuery.toLowerCase()) || 
-                   program.includes(searchQuery.toLowerCase()) ||
-                   destination.includes(searchQuery.toLowerCase());
+            return name.includes(searchQuery.toLowerCase()) || 
+                   groupCode.includes(searchQuery.toLowerCase());
         }).sort((a, b) => {
-            const tourCodeA = a.tourInfo?.groupCode || '';
-            const tourCodeB = b.tourInfo?.groupCode || '';
-            return tourCodeB.localeCompare(tourCodeA);
+            const nameA = a.name || '';
+            const nameB = b.name || '';
+            return nameB.localeCompare(nameA);
         });
     }, [savedCalculations, searchQuery]);
 
@@ -58,20 +91,18 @@ export default function TourCostCalculatorListPage() {
         if (!user) return;
         const newCalculationData = {
             uid: user.uid,
-            savedAt: serverTimestamp(),
-            tourInfo: {
-                mouContact: '',
-                groupCode: `LTH${Date.now()}`,
-                destinationCountry: '',
-                program: '',
-                startDate: null,
-                endDate: null,
-                numDays: 1,
-                numNights: 0,
-                numPeople: 1,
-                travelerInfo: ''
+            createdAt: serverTimestamp(),
+            name: `ໂປຣແກຣມໃໝ່ ${new Date().toLocaleDateString()}`,
+            days: 1,
+            markupPercentage: 15,
+            markupAmount: 0,
+            exchangeRates: {
+                USD: { THB: 38, LAK: 25000, CNY: 8, USD: 1 },
+                THB: { USD: 0.032, LAK: 700, CNY: 0.25, THB: 1 },
+                CNY: { USD: 0.20, THB: 6, LAK: 3500, CNY: 1 },
+                LAK: { USD: 0.00005, THB: 0.0015, CNY: 0.00035, LAK: 1 },
             },
-            allCosts: {
+            costs: {
                 accommodations: [],
                 trips: [],
                 flights: [],
@@ -83,23 +114,28 @@ export default function TourCostCalculatorListPage() {
                 overseasPackages: [],
                 activities: []
             },
-            exchangeRates: {
-                USD: { THB: 38, LAK: 25000, CNY: 8, USD: 1 },
-                THB: { USD: 0.032, LAK: 700, CNY: 0.25, THB: 1 },
-                CNY: { USD: 0.20, THB: 6, LAK: 3500, CNY: 1 },
-                LAK: { USD: 0.00005, THB: 0.0015, CNY: 0.00035, LAK: 1 },
-            },
-            profitPercentage: 20
+            tourInfo: {
+                mouContact: '',
+                groupCode: `LTH${Date.now()}`,
+                destinationCountry: '',
+                program: '',
+                startDate: null,
+                endDate: null,
+                numDays: 1,
+                numNights: 0,
+                numPeople: 1,
+                travelerInfo: ''
+            }
         };
         
         try {
-            const toursColRef = collection(db, 'tours');
+            const toursColRef = collection(db, 'tourCalculations');
             const newDocRef = await addDoc(toursColRef, newCalculationData);
             if(newDocRef){
               navigate(`/tour/cost-calculator/${newDocRef.id}`);
             }
         } catch (error) {
-            handleFirestoreError(error, OperationType.CREATE, 'tours');
+            handleFirestoreError(error, OperationType.CREATE, 'tourCalculations');
         }
     };
     
@@ -107,11 +143,11 @@ export default function TourCostCalculatorListPage() {
         e.stopPropagation();
         if (window.confirm("ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນການຄຳນວນນີ້?")) {
             try {
-                const docRef = doc(db, 'tours', id);
+                const docRef = doc(db, 'tourCalculations', id);
                 await deleteDoc(docRef);
                 toast.success("ລຶບຂໍ້ມູນສຳເລັດ");
             } catch (error) {
-                handleFirestoreError(error, OperationType.DELETE, `tours/${id}`);
+                handleFirestoreError(error, OperationType.DELETE, `tourCalculations/${id}`);
             }
         }
     };
