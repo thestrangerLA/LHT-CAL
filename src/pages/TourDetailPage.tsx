@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ArrowRight, Save, Trash2, MapPin, BedDouble, Truck, Plane, TrainFront, PlusCircle, Camera, UtensilsCrossed, Users, FileText, Clock, Eye, EyeOff, Printer, Earth, Bike, Calculator, LogOut, User, Globe, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Trash2, MapPin, BedDouble, Truck, Plane, TrainFront, PlusCircle, Camera, UtensilsCrossed, Users, FileText, Clock, Eye, EyeOff, Printer, Earth, Bike, Calculator, LogOut, User, Globe, Calendar, Info } from "lucide-react";
 import { TotalCostCard } from '@/components/tour/TotalCostCard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -92,9 +92,11 @@ export default function TourDetailPage() {
     const [itemVisibility, setItemVisibility] = useState<Record<string, boolean>>({});
     const [activeTab, setActiveTab] = useState('info');
     const [loading, setLoading] = useState(true);
+    const [docUid, setDocUid] = useState<string | null>(null);
+    const isReadOnly = !(user?.email?.toLowerCase().trim() === "laohugtravelwork@gmail.com" || docUid === user?.uid);
 
     useEffect(() => {
-        if (!calculationId || !user) return;
+        if (!calculationId) return;
 
         const docRef = doc(db, 'tourCalculations', calculationId);
         const unsubscribe = onSnapshot(docRef, (snapshot) => {
@@ -112,6 +114,7 @@ export default function TourDetailPage() {
                 });
                 if (data.exchangeRates) setExchangeRates(data.exchangeRates);
                 if (data.markupPercentage !== undefined) setProfitPercentage(data.markupPercentage);
+                setDocUid(data.uid || null);
                 setLoading(false);
             } else {
                 toast.error("Calculation not found.");
@@ -380,20 +383,35 @@ export default function TourDetailPage() {
                         <Printer className="mr-2 h-5 w-5" />
                         พิมพ์
                     </Button>
-                    <Button variant="ghost" size="lg" className="hidden sm:flex rounded-full px-6 font-bold text-red-600 hover:bg-red-50 transition-all" onClick={handleDeleteCalculation}>
-                        <Trash2 className="mr-2 h-5 w-5" />
-                        ลบ
-                    </Button>
-                    <Button size="lg" onClick={handleSaveCalculation} className="rounded-full px-8 font-bold shadow-lg shadow-black/10 hover:shadow-premium transition-all active:scale-95 bg-black text-white">
-                        <Save className="mr-2 h-5 w-5" />
-                        บันทึกข้อมูล
-                    </Button>
+                    {(user?.email?.toLowerCase().trim() === "laohugtravelwork@gmail.com" || docUid === user?.uid) && (
+                        <>
+                            <Button variant="ghost" size="lg" className="hidden sm:flex rounded-full px-6 font-bold text-red-600 hover:bg-red-50 transition-all" onClick={handleDeleteCalculation}>
+                                <Trash2 className="mr-2 h-5 w-5" />
+                                ลบ
+                            </Button>
+                            <Button size="lg" onClick={handleSaveCalculation} className="rounded-full px-8 font-bold shadow-lg shadow-black/10 hover:shadow-premium transition-all active:scale-95 bg-black text-white">
+                                <Save className="mr-2 h-5 w-5" />
+                                บันทึกข้อมูล
+                            </Button>
+                        </>
+                    )}
                 </div>
             </header>
 
             <main className="flex w-full flex-1 flex-col gap-8 p-6 sm:px-10 sm:py-12 bg-white print:p-0 print:bg-white">
                 <div className="w-full max-w-screen-2xl mx-auto">
                     <div className="w-full max-w-5xl mx-auto">
+                        {isReadOnly && (
+                            <div className="bg-amber-50 text-amber-800 p-4 rounded-2xl mb-8 font-bold flex items-center gap-3 border border-amber-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+                                <div className="p-2 bg-amber-200 rounded-lg">
+                                    <Info className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm">โหมดอ่านอย่างเดียว (Read-only)</p>
+                                    <p className="text-xs font-medium opacity-80">คุณສາມາດເຫັນຂໍ້ມູນໄດ້ ແຕ່ບໍ່ສາມາດແກ້ໄຂໄດ້ ເນື່ອງຈາກບໍ່ແມ່ນເຈົ້າຂອງລາຍການນີ້</p>
+                                </div>
+                            </div>
+                        )}
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                             <TabsList className="grid w-full grid-cols-5 h-14 bg-white rounded-2xl p-1 shadow-soft mb-6 border border-black/5 print:hidden">
                                 <TabsTrigger value="info" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
@@ -413,7 +431,8 @@ export default function TourDetailPage() {
                                 </TabsTrigger>
                             </TabsList>
 
-                            <div id="print-content" className="space-y-10">
+                            <fieldset disabled={isReadOnly} className="contents">
+                                <div id="print-content" className="space-y-10">
                                 <TabsContent value="info" className="space-y-10 mt-0 outline-none">
                                     {/* Tour Info Section */}
                          <Card className="border-none shadow-soft rounded-[2rem] bg-white overflow-hidden print:shadow-none print:border">
@@ -1253,6 +1272,7 @@ export default function TourDetailPage() {
                                     </div>
                                 </TabsContent>
                             </div>
+                            </fieldset>
                         </Tabs>
                     </div>
                 </div>

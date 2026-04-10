@@ -25,6 +25,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function TourCostCalculatorListPage() {
     const navigate = useNavigate();
     const { user, login, logout } = useAuth();
+    const isAdmin = user?.email?.toLowerCase().trim() === "laohugtravelwork@gmail.com";
     const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([]);
     const [calculationsLoading, setCalculationsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -32,25 +33,11 @@ export default function TourCostCalculatorListPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     useEffect(() => {
-        if (!user) return;
         setCalculationsLoading(true);
         const toursColRef = collection(db, 'tourCalculations');
         
-        // Admin can see everything, others only their own
-        const isAdmin = user.email?.toLowerCase().trim() === "laohugtravelwork@gmail.com";
-        
-        let q;
-        if (isAdmin) {
-            // No where filter for admin to see all data
-            q = query(toursColRef);
-        } else {
-            // Remove orderBy from Firestore query to avoid hiding documents missing the createdAt field
-            // We will sort manually in memory instead
-            q = query(
-                toursColRef, 
-                where('uid', '==', user.uid)
-            );
-        }
+        // Fetch all items publicly
+        const q = query(toursColRef);
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const calcs = snapshot.docs.map(doc => {
@@ -315,17 +302,19 @@ export default function TourCostCalculatorListPage() {
                                                                 {calc.tourInfo?.groupCode || 'No Code'}
                                                             </h3>
                                                         </div>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-black/5 transition-all" onClick={(e) => e.stopPropagation()}>
-                                                                    <MoreHorizontal className="h-5 w-5" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="rounded-2xl border border-black/5 shadow-premium p-2 min-w-[160px] bg-white">
-                                                                <DropdownMenuItem onSelect={() => navigate(`/tour/cost-calculator/${calc.id}`)} className="rounded-xl h-10 font-bold hover:bg-black hover:text-white">แก้ไขข้อมูล</DropdownMenuItem>
-                                                                <DropdownMenuItem onSelect={(e) => confirmDelete(e as any, calc.id)} className="text-red-600 rounded-xl h-10 font-bold hover:bg-red-600 hover:text-white">ลบออก</DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
+                                                        {(isAdmin || calc.uid === user?.uid) && (
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-black/5 transition-all" onClick={(e) => e.stopPropagation()}>
+                                                                        <MoreHorizontal className="h-5 w-5" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end" className="rounded-2xl border border-black/5 shadow-premium p-2 min-w-[160px] bg-white">
+                                                                    <DropdownMenuItem onSelect={() => navigate(`/tour/cost-calculator/${calc.id}`)} className="rounded-xl h-10 font-bold hover:bg-black hover:text-white">แก้ไขข้อมูล</DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={(e) => confirmDelete(e as any, calc.id)} className="text-red-600 rounded-xl h-10 font-bold hover:bg-red-600 hover:text-white">ลบออก</DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        )}
                                                     </div>
                                                     
                                                     <div className="space-y-5">
