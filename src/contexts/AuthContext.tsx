@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInAnonymously, signOut } from 'firebase/auth';
+import { User, onAuthStateChanged, signInAnonymously, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { toast } from 'sonner';
 
@@ -46,19 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 2. Otherwise, listen to Firebase Auth
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        if (!currentUser.isAnonymous) {
-          // If logged in with Google, sign out to force anonymous guest experience
-          try {
-            await signOut(auth);
-          } catch (error) {
-            console.error("Error signing out:", error);
-          }
-        } else {
-          setUser(currentUser);
-          setLoading(false);
-        }
+        setUser(currentUser);
+        setLoading(false);
       } else {
-        // Not logged in, try to sign in anonymously
+        // Not logged in, try to sign in anonymously as a fallback
         try {
           await signInAnonymously(auth);
         } catch (error: any) {
@@ -100,11 +91,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async () => {
-    console.log("Login disabled - using anonymous guest account");
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      toast.success('Logged in successfully');
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error('Failed to log in: ' + error.message);
+    }
   };
 
   const logout = async () => {
-    console.log("Logout disabled");
+    try {
+      await signOut(auth);
+      // Clear local guest ID if it exists
+      localStorage.removeItem('lth_local_guest_id');
+      toast.success('Logged out successfully');
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      toast.error('Failed to log out');
+    }
   };
 
   return (

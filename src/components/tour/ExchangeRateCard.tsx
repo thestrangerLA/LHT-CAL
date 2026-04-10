@@ -56,7 +56,7 @@ export function ExchangeRateCard({
                 <CardHeader className="pb-4 pt-8 px-8 border-b border-black/5 bg-black/[0.02]">
                     <div className="flex items-center justify-between mb-6">
                         <CardTitle className="text-2xl font-black tracking-tight text-black">
-                            ສະຫຼຸບການຄຳນວນ
+                            สรุปการคำนวณ
                         </CardTitle>
                         <div className="p-2 bg-black text-white rounded-xl">
                             <Calculator className="h-5 w-5" />
@@ -65,7 +65,7 @@ export function ExchangeRateCard({
 
                     <div className="space-y-6">
                         <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em]">ເລືອກສະກຸນເງິນສະຫຼຸບ</Label>
+                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em]">เลือกสกุลเงินสรุป</Label>
                             <Tabs value={selectedCurrency} onValueChange={(val) => setSelectedCurrency(val as Currency)} className="w-full">
                                 <TabsList className="grid grid-cols-4 bg-black/5 p-1 rounded-2xl h-12 border border-transparent">
                                     {currencies.map(curr => (
@@ -76,7 +76,7 @@ export function ExchangeRateCard({
                         </div>
 
                         <div className="space-y-1 pt-2">
-                            <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em]">ຕົ້ນທຶນລວມ (TOTAL COST)</p>
+                            <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em]">ต้นทุนรวม (TOTAL COST)</p>
                             <div className="flex items-baseline gap-3">
                                 <span className="text-5xl font-black tracking-tighter text-black">{formatNumber(Math.round(totalInSelected))}</span>
                                 <span className="text-xl font-black text-black">{selectedCurrency}</span>
@@ -88,14 +88,14 @@ export function ExchangeRateCard({
                 <CardContent className="p-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ຕົ້ນທຶນ/ຄົນ</Label>
+                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ต้นทุน/คน</Label>
                             <div className="h-14 bg-black/5 rounded-2xl flex items-center px-5 border border-transparent shadow-inner">
                                 <span className="text-2xl font-black tracking-tight text-black">{formatNumber(Math.round(costPerPerson))}</span>
                                 <span className="ml-2 text-sm font-bold text-black/60">{selectedCurrency}</span>
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ກຳໄລຄາດໝາຍ (%)</Label>
+                            <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">กำไรคาดหมาย (%)</Label>
                             <Input 
                                 type="number" 
                                 value={profitPercentage} 
@@ -106,7 +106,7 @@ export function ExchangeRateCard({
                     </div>
 
                     <div className="space-y-4">
-                        <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ລາຄາຂາຍລວມ (TOTAL SELLING)</Label>
+                        <Label className="text-[10px] font-black text-black/40 uppercase tracking-wider">ราคาขายรวม (TOTAL SELLING)</Label>
                         <div className="relative">
                             <div className="h-20 bg-black/5 rounded-2xl flex items-center px-8 border-2 border-black/10 group-focus-within:bg-black/10 transition-all shadow-sm">
                                 <span className="text-4xl font-black tracking-tight text-black">{formatNumber(Math.round(totalWithProfit))}</span>
@@ -123,7 +123,7 @@ export function ExchangeRateCard({
                                 <TrendingUp className="h-6 w-6" />
                             </div>
                             <div>
-                                <span className="text-xl font-black text-black block">ກຳໄລສຸດທິ</span>
+                                <span className="text-xl font-black text-black block">กำไรสุทธิ</span>
                                 <span className="text-[10px] font-black text-black/60 uppercase tracking-widest">Net Profit</span>
                             </div>
                         </div>
@@ -141,9 +141,9 @@ export function ExchangeRateCard({
                         <div className="p-2 bg-black text-white rounded-xl">
                             <ArrowRightLeft className="h-5 w-5" />
                         </div>
-                        <h2 className="text-2xl font-black tracking-tight text-black">ອັດຕາແລກປ່ຽນ</h2>
+                        <h2 className="text-2xl font-black tracking-tight text-black">อัตราแลกเปลี่ยน</h2>
                     </div>
-                    <p className="text-sm font-bold text-black/60 ml-11">ລະບົບຈະບັນທຶກອັດຕະໂນມັດເມື່ອມີການປ່ຽນແປງ</p>
+                    <p className="text-sm font-bold text-black/60 ml-11">ระบบจะบันทึกอัตโนมัติเมื่อมีการเปลี่ยนแปลง</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">

@@ -23,16 +23,16 @@ const categoryIcons: Record<string, any> = {
 };
 
 const categoryNames: Record<string, string> = {
-    'accommodations': 'ຄ່າທີ່ພັກ',
-    'trips': 'ຄ່າຂົນສົ່ງ',
-    'flights': 'ຄ່າປີ້ຍົນ',
-    'trainTickets': 'ຄ່າປີ້ລົດໄຟ',
-    'entranceFees': 'ຄ່າເຂົ້າຊົມ',
-    'meals': 'ຄ່າອາຫານ',
-    'guides': 'ຄ່າໄກ້',
-    'documents': 'ຄ່າເອກະສານ',
-    'overseasPackages': 'ແພັກເກັດຕ່າງປະເທດ',
-    'activities': 'ຄ່າກິດຈະກຳ',
+    'accommodations': 'ค่าที่พัก',
+    'trips': 'ค่าขนส่ง',
+    'flights': 'ค่าตั๋วเครื่องบิน',
+    'trainTickets': 'ค่าตั๋วรถไฟ',
+    'entranceFees': 'ค่าเข้าชม',
+    'meals': 'ค่าอาหาร',
+    'guides': 'ค่าไกด์',
+    'documents': 'ค่าเอกสาร',
+    'overseasPackages': 'แพ็กเกจต่างประเทศ',
+    'activities': 'ค่ากิจกรรม',
 };
 
 const formatNumber = (num: number) => new Intl.NumberFormat('en-US').format(num);
@@ -44,7 +44,7 @@ export function TotalCostCard({ totalsByCategory }: { totalsByCategory: Record<s
                 <div className="p-2 bg-black text-white rounded-xl">
                     <Calculator className="h-5 w-5" />
                 </div>
-                <h2 className="text-xl font-black tracking-tight text-black">ສະຫຼຸບຕາມໝວດໝູ່</h2>
+                <h2 className="text-xl font-black tracking-tight text-black">สรุปตามหมวดหมู่</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

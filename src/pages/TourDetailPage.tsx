@@ -36,10 +36,10 @@ import {
 } from '@/types';
 
 const currencySymbols: Record<Currency, string> = {
-    USD: '$ (ດອນລ່າ)',
-    THB: '฿ (ບາດ)',
-    LAK: '₭ (ກີບ)',
-    CNY: '¥ (ຢວນ)',
+    USD: '$ (ดอลลาร์)',
+    THB: '฿ (บาท)',
+    LAK: '₭ (กีบ)',
+    CNY: '¥ (หยวน)',
 };
 
 const formatNumber = (num: number) => new Intl.NumberFormat('en-US').format(num);
@@ -146,7 +146,7 @@ export default function TourDetailPage() {
 
         try {
             await setDoc(docRef, dataToSave, { merge: true });
-            toast.success("ບັນທຶກການຄຳນວນສຳເລັດ");
+            toast.success("บันทึกการคำนวณสำเร็จ");
         } catch (error) {
             handleFirestoreError(error, OperationType.WRITE, `tourCalculations/${calculationId}`);
         }
@@ -154,12 +154,12 @@ export default function TourDetailPage() {
     
     const handleDeleteCalculation = async () => {
         if (!calculationId || !user) return;
-        if (window.confirm("ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນການຄຳນວນນີ້?")) {
+        if (window.confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลการคำนวณนี้?")) {
             try {
                 const docRef = doc(db, 'tourCalculations', calculationId);
                 await deleteDoc(docRef);
                 navigate('/tour/cost-calculator');
-                toast.success("ລຶບຂໍ້ມູນສຳເລັດ");
+                toast.success("ลบข้อมูลสำเร็จ");
             } catch (error) {
                 handleFirestoreError(error, OperationType.DELETE, `tourCalculations/${calculationId}`);
             }
@@ -187,7 +187,7 @@ export default function TourDetailPage() {
     };
 
     // Specific Adders
-    const addAccommodation = () => addItem('accommodations', { id: uuidv4(), name: '', type: 'hotel', checkInDate: '', rooms: [{ id: uuidv4(), date: '', type: 'ຕຽງດ່ຽວ', numRooms: 1, numNights: 1, price: 0, currency: 'USD' }] });
+    const addAccommodation = () => addItem('accommodations', { id: uuidv4(), name: '', type: 'hotel', checkInDate: '', rooms: [{ id: uuidv4(), date: '', type: 'เตียงเดี่ยว', numRooms: 1, numNights: 1, price: 0, currency: 'USD' }] });
     const updateRoom = (accId: string, roomId: string, field: string, value: any) => {
         const updatedAccs = allCosts.accommodations.map(a => {
             if (a.id === accId) {
@@ -202,7 +202,7 @@ export default function TourDetailPage() {
         const acc = allCosts.accommodations.find(a => a.id === accId);
         const accommodations = allCosts.accommodations.map(a => {
             if (a.id === accId) {
-                const newRoom = { id: uuidv4(), date: a.checkInDate, type: 'ຕຽງດ່ຽວ', numRooms: 1, numNights: 1, price: 0, currency: 'USD' };
+                const newRoom = { id: uuidv4(), date: a.checkInDate, type: 'เตียงเดี่ยว', numRooms: 1, numNights: 1, price: 0, currency: 'USD' };
                 return { ...a, rooms: [...a.rooms, newRoom] };
             }
             return a;
@@ -219,7 +219,7 @@ export default function TourDetailPage() {
         updateCosts('accommodations', accommodations);
     };
 
-    const addTrip = () => addItem('trips', { id: uuidv4(), date: '', location: '', route: '', vehicleType: 'ລົດຕູ້ທຳມະດາ', numVehicles: 1, numDays: 1, pricePerVehicle: 0, currency: 'USD' });
+    const addTrip = () => addItem('trips', { id: uuidv4(), date: '', location: '', route: '', vehicleType: 'รถตู้ธรรมดา', numVehicles: 1, numDays: 1, pricePerVehicle: 0, currency: 'USD' });
     const addFlight = () => addItem('flights', { id: uuidv4(), from: '', to: '', departureDate: '', departureTime: '08:00', pricePerPerson: 0, numPeople: 1, currency: 'USD' });
     const addTrainTicket = () => addItem('trainTickets', { id: uuidv4(), from: '', to: '', departureDate: '', departureTime: '08:00', ticketClass: '', numTickets: 1, pricePerTicket: 0, currency: 'LAK' });
     const addEntranceFee = () => addItem('entranceFees', { id: uuidv4(), date: '', locationName: '', pax: 1, numLocations: 1, price: 0, currency: 'LAK' });
@@ -256,7 +256,7 @@ export default function TourDetailPage() {
         return totals;
     }, [allCosts.flights]);
     
-    const trainTotals = useMemo(() => {
+    const trainTicketTotals = useMemo(() => {
         const totals: Record<Currency, number> = { USD: 0, THB: 0, LAK: 0, CNY: 0 };
         allCosts.trainTickets?.forEach(ticket => {
             totals[ticket.currency] += (ticket.pricePerTicket || 0) * (ticket.numTickets || 0);
@@ -313,16 +313,16 @@ export default function TourDetailPage() {
     }, [allCosts.activities]);
 
     const totalsByCategory = {
-        'ຄ່າທີ່ພັກ': accommodationTotals,
-        'ຄ່າຂົນສົ່ງ': tripTotals,
-        'ຄ່າປີ້ຍົນ': flightTotals,
-        'ຄ່າປີ້ລົດໄຟ': trainTotals,
-        'ຄ່າເຂົ້າຊົມສະຖານທີ່': entranceFeeTotals,
-        'ຄ່າອາຫານ': mealTotals,
-        'ຄ່າໄກ້': guideTotals,
-        'ຄ່າເອກະສານ': documentTotals,
-        'ຄ່າເພັກເກດຕ່າງປະເທດ': overseasPackageTotals,
-        'ຄ່າກິດຈະກຳ': activityTotals,
+        'ค่าที่พัก': accommodationTotals,
+        'ค่าขนส่ง': tripTotals,
+        'ค่าตั๋วเครื่องบิน': flightTotals,
+        'ค่าตั๋วรถไฟ': trainTicketTotals,
+        'ค่าเข้าชมสถานที่': entranceFeeTotals,
+        'ค่าอาหาร': mealTotals,
+        'ค่าไกด์': guideTotals,
+        'ค่าเอกสาร': documentTotals,
+        'ค่าแพ็กเกจต่างประเทศ': overseasPackageTotals,
+        'ค่ากิจกรรม': activityTotals,
     };
 
     const grandTotals = useMemo(() => {
@@ -341,7 +341,7 @@ export default function TourDetailPage() {
 
         return (
             <div className="mt-6 rounded-2xl bg-black/5 p-5 border border-black/10">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/90 mb-3">ສະຫຼຸບຍອດໝວດນີ້:</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/90 mb-3">สรุปยอดหมวดนี้:</p>
                 <div className="flex flex-wrap items-center gap-6">
                     {filteredTotals.map(([currency, value]) => (
                         <div key={currency} className="flex items-baseline gap-2">
@@ -364,7 +364,7 @@ export default function TourDetailPage() {
                 <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full hover:bg-muted/50 transition-all active:scale-95" asChild>
                     <Link to="/tour/cost-calculator">
                         <ArrowLeft className="h-6 w-6" />
-                        <span className="sr-only">ກັບໄປໜ້າລາຍການ</span>
+                        <span className="sr-only">กลับไปยังหน้ารายการ</span>
                     </Link>
                 </Button>
                 <div className="flex-1">
@@ -372,21 +372,21 @@ export default function TourDetailPage() {
                         <div className="p-2 bg-black text-white rounded-xl">
                             <Calculator className="h-6 w-6"/>
                         </div>
-                        ລະບົບຄຳນວນຄ່າໃຊ້ຈ່າຍທົວ
+                        ระบบคำนวณค่าใช้จ่ายทัวร์
                     </h1>
                 </div>
                  <div className="flex items-center gap-3">
                     <Button variant="outline" size="lg" className="hidden sm:flex rounded-full px-6 font-bold border border-black/10 hover:bg-black/5 transition-all text-black" onClick={() => window.print()}>
                         <Printer className="mr-2 h-5 w-5" />
-                        ພິມ
+                        พิมพ์
                     </Button>
                     <Button variant="ghost" size="lg" className="hidden sm:flex rounded-full px-6 font-bold text-red-600 hover:bg-red-50 transition-all" onClick={handleDeleteCalculation}>
                         <Trash2 className="mr-2 h-5 w-5" />
-                        ລຶບ
+                        ลบ
                     </Button>
                     <Button size="lg" onClick={handleSaveCalculation} className="rounded-full px-8 font-bold shadow-lg shadow-black/10 hover:shadow-premium transition-all active:scale-95 bg-black text-white">
                         <Save className="mr-2 h-5 w-5" />
-                        ບັນທຶກຂໍ້ມູນ
+                        บันทึกข้อมูล
                     </Button>
                 </div>
             </header>
@@ -397,19 +397,19 @@ export default function TourDetailPage() {
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                             <TabsList className="grid w-full grid-cols-5 h-14 bg-white rounded-2xl p-1 shadow-soft mb-6 border border-black/5 print:hidden">
                                 <TabsTrigger value="info" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
-                                    1. ຂໍ້ມູນພື້ນຖານ
+                                    1. ข้อมูลพื้นฐาน
                                 </TabsTrigger>
                                 <TabsTrigger value="costs" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
-                                    2. ຄ່າໃຊ້ຈ່າຍຕ່າງໆ
+                                    2. ค่าใช้จ่ายต่างๆ
                                 </TabsTrigger>
                                 <TabsTrigger value="grand_totals" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
-                                    3. ລວມຍອດຕົ້ນທຶນ
+                                    3. รวมยอดต้นทุน
                                 </TabsTrigger>
                                 <TabsTrigger value="category_totals" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
-                                    4. ລາຍລະອຽດຕົ້ນທຶນ
+                                    4. รายละเอียดต้นทุน
                                 </TabsTrigger>
                                 <TabsTrigger value="calculation_summary" className="rounded-xl font-black text-[10px] sm:text-xs data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
-                                    5. ສະຫຼຸບການຄຳນວນ
+                                    5. สรุปการคำนวณ
                                 </TabsTrigger>
                             </TabsList>
 
@@ -424,9 +424,9 @@ export default function TourDetailPage() {
                                             <div className="p-2 bg-black text-white rounded-xl shadow-lg shadow-black/20">
                                                 <MapPin className="h-5 w-5" />
                                             </div>
-                                            ຂໍ້ມູນພື້ນຖານຂອງທົວ
+                                            ข้อมูลพื้นฐานของทัวร์
                                         </CardTitle>
-                                        <CardDescription className="text-sm font-medium text-muted-foreground/80">ກະລຸນາລະບຸຂໍ້ມູນເບື້ອງຕົ້ນຂອງກຸ່ມນັກທ່ອງທ່ຽວ</CardDescription>
+                                        <CardDescription className="text-sm font-medium text-muted-foreground/80">กรุณาระบุข้อมูลเบื้องต้นของกลุ่มนักท่องเที่ยว</CardDescription>
                                     </div>
                                     <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-xl bg-black/5 border border-black/10">
                                         <Users className="h-4 w-4 text-black" />
@@ -440,52 +440,52 @@ export default function TourDetailPage() {
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">MOU Contact</Label>
                                         <div className="relative group">
                                             <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
-                                            <Input placeholder="ຊື່ຜູ້ຕິດຕໍ່" value={tourInfo.mouContact} onChange={e => setTourInfo({...tourInfo, mouContact: e.target.value})} className="h-14 pl-12 bg-white border-black/10 focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
+                                            <Input placeholder="ชื่อผู้ติดต่อ" value={tourInfo.mouContact} onChange={e => setTourInfo({...tourInfo, mouContact: e.target.value})} className="h-14 pl-12 bg-white border-black/10 focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                         </div>
                                     </div>
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">Group Code</Label>
                                         <div className="relative group">
                                             <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
-                                            <Input placeholder="ລະຫັດກຸ່ມ" value={tourInfo.groupCode} onChange={e => setTourInfo({...tourInfo, groupCode: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-black text-black" />
+                                            <Input placeholder="รหัสกลุ่ม" value={tourInfo.groupCode} onChange={e => setTourInfo({...tourInfo, groupCode: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-black text-black" />
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ປະເທດປາຍທາງ</Label>
+                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ประเทศปลายทาง</Label>
                                         <div className="relative group">
                                             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
-                                            <Input placeholder="ປະເທດປາຍທາງ" value={tourInfo.destinationCountry} onChange={e => setTourInfo({...tourInfo, destinationCountry: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
+                                            <Input placeholder="ประเทศปลายทาง" value={tourInfo.destinationCountry} onChange={e => setTourInfo({...tourInfo, destinationCountry: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                         </div>
                                     </div>
 
                                     <div className="h-px bg-muted/50 my-2 md:col-span-3" />
 
                                     <div className="space-y-3 md:col-span-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ໂປຣແກຣມທົວ</Label>
-                                        <Input placeholder="ລະບຸຊື່ໂປຣແກຣມ ຫຼື ເສັ້ນທາງ" value={tourInfo.program} onChange={e => setTourInfo({...tourInfo, program: e.target.value})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
+                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">โปรแกรมทัวร์</Label>
+                                        <Input placeholder="ระบุชื่อโปรแกรมหรือเส้นทาง" value={tourInfo.program} onChange={e => setTourInfo({...tourInfo, program: e.target.value})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                     </div>
                                     
                                     <div className="hidden md:block" />
                                     <div className="h-px bg-muted/50 my-2 md:col-span-3" />
 
                                     <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ໄລຍະເວລາ</Label>
+                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ระยะเวลา</Label>
                                         <div className="flex items-center gap-3">
                                             <div className="relative flex-1 group">
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
-                                                <Input placeholder="ເລີ່ມ (ວັນທີ)" value={tourInfo.startDate as string || ''} onChange={e => setTourInfo({...tourInfo, startDate: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
+                                                <Input placeholder="เริ่ม (วันที่)" value={tourInfo.startDate as string || ''} onChange={e => setTourInfo({...tourInfo, startDate: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                             </div>
                                             <div className="h-px w-4 bg-muted-foreground/20" />
                                             <div className="relative flex-1 group">
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors" />
-                                                <Input placeholder="ສິ້ນສຸດ (ວັນທີ)" value={tourInfo.endDate as string || ''} onChange={e => setTourInfo({...tourInfo, endDate: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
+                                                <Input placeholder="สิ้นสุด (วันที่)" value={tourInfo.endDate as string || ''} onChange={e => setTourInfo({...tourInfo, endDate: e.target.value})} className="h-14 pl-12 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl font-bold" />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-6 md:col-span-2">
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ວັນ / ຄືນ</Label>
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">วัน / คืน</Label>
                                             <div className="flex gap-3">
                                                 <div className="relative flex-1">
                                                     <Input type="number" value={tourInfo.numDays} onChange={e => setTourInfo({...tourInfo, numDays: Number(e.target.value) || 1})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl text-center font-black text-lg" />
@@ -498,7 +498,7 @@ export default function TourDetailPage() {
                                             </div>
                                         </div>
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ຈຳນວນຄົນ</Label>
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">จำนวนคน</Label>
                                             <div className="relative">
                                                 <Input type="number" value={tourInfo.numPeople} onChange={e => setTourInfo({...tourInfo, numPeople: Number(e.target.value) || 1})} className="h-14 bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-2xl text-center font-black text-lg text-black" />
                                                 <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase text-muted-foreground/40">Pax</span>
@@ -509,13 +509,13 @@ export default function TourDetailPage() {
                                     <div className="h-px bg-muted/50 my-2 md:col-span-3" />
 
                                     <div className="space-y-3 md:col-span-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ຂໍ້ມູນເພີ່ມເຕີມ</Label>
-                                        <Textarea placeholder="ຕົວຢ່າງ ກຸ່ມຄອບຄົວ, ຄູ່ຮັກ, ຄວາມຕ້ອງການພິເສດ..." className="min-h-[140px] bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-[2rem] p-6 font-medium leading-relaxed" value={tourInfo.travelerInfo} onChange={e => setTourInfo({...tourInfo, travelerInfo: e.target.value})} />
+                                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground ml-1">ข้อมูลเพิ่มเติม</Label>
+                                        <Textarea placeholder="ตัวอย่าง กลุ่มครอบครัว, คู่รัก, ความต้องการพิเศษ..." className="min-h-[140px] bg-white border-black/10 border-transparent focus:bg-white focus:ring-4 focus:ring-black/5 transition-all rounded-[2rem] p-6 font-medium leading-relaxed" value={tourInfo.travelerInfo} onChange={e => setTourInfo({...tourInfo, travelerInfo: e.target.value})} />
                                     </div>
                                 </div>
                                 <div className="flex justify-end pt-6 print:hidden">
                                     <Button onClick={() => setActiveTab('costs')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all bg-black text-white">
-                                        ຕໍ່ໄປ: ປ້ອນຄ່າໃຊ້ຈ່າຍ
+                                        ต่อไป: ป้อนค่าใช้จ่าย
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
@@ -527,9 +527,9 @@ export default function TourDetailPage() {
                                 <TabsContent value="costs" className="space-y-10 mt-0 outline-none">
                                     {/* Costs Section */}
                                     <div className="print:block">
-                            <Accordion type="multiple" className="w-full" defaultValue={['ຄ່າທີ່ພັກ', 'ຄ່າຂົນສົ່ງ', 'ຄ່າປີ້ຍົນ', 'ຄ່າປີ້ລົດໄຟ', 'ຄ່າເຂົ້າຊົມສະຖານທີ່', 'ຄ່າອາຫານ', 'ຄ່າໄກ້', 'ຄ່າເອກະສານ', 'ຄ່າເພັກເກດຕ່າງປະເທດ', 'ຄ່າກິດຈະກຳ'].map(t => t.toLowerCase().replace(/\s/g, '-'))}>
+                            <Accordion type="multiple" className="w-full" defaultValue={['ค่าที่พัก', 'ค่าขนส่ง', 'ค่าตั๋วเครื่องบิน', 'ค่าตั๋วรถไฟ', 'ค่าเข้าชมสถานที่', 'ค่าอาหาร', 'ค่าไกด์', 'ค่าเอกสาร', 'ค่าแพ็กเกจต่างประเทศ', 'ค่ากิจกรรม'].map(t => t.toLowerCase().replace(/\s/g, '-'))}>
                                 {/* Accommodation */}
-                                <CostCategoryContent title="ຄ່າທີ່ພັກ" icon={<BedDouble className="h-5 w-5" />} summary={<CategorySummary totals={accommodationTotals} />}>
+                                <CostCategoryContent title="ค่าที่พัก" icon={<BedDouble className="h-5 w-5" />} summary={<CategorySummary totals={accommodationTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.accommodations?.map((acc, index) => (
                                             <Card key={acc.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -538,7 +538,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ທີ່ພັກ
+                                                        ที่พัก
                                                     </CardTitle>
                                                     <div className="flex gap-1">
                                                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-black/10" onClick={() => toggleItemVisibility(acc.id)}>
@@ -553,14 +553,14 @@ export default function TourDetailPage() {
                                                     <CardContent className="p-6 space-y-6">
                                                         <div className="grid md:grid-cols-2 gap-6">
                                                             <div className="space-y-2.5">
-                                                                <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ທີ່ພັກ</Label>
-                                                                <Input placeholder="ຊື່ທີ່ພັກ" value={acc.name} onChange={e => updateItem('accommodations', acc.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                                <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อที่พัก</Label>
+                                                                <Input placeholder="ชื่อที่พัก" value={acc.name} onChange={e => updateItem('accommodations', acc.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                             </div>
                                                             <div className="space-y-2.5">
-                                                                <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີເຊັກອິນ</Label>
+                                                                <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่เช็คอิน</Label>
                                                                 <div className="relative group">
                                                                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-black transition-colors z-10" />
-                                                                    <Input placeholder="ເລືອກວັນທີ" value={acc.checkInDate as string || ''} onChange={e => updateItem('accommodations', acc.id, 'checkInDate', e.target.value)} className="h-11 pl-10 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                                    <Input placeholder="เลือกวันที่" value={acc.checkInDate as string || ''} onChange={e => updateItem('accommodations', acc.id, 'checkInDate', e.target.value)} className="h-11 pl-10 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -569,46 +569,46 @@ export default function TourDetailPage() {
 
                                                         <div className="space-y-4">
                                                             <div className="flex items-center justify-between">
-                                                                <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຍລະອຽດຫ້ອງ</Label>
+                                                                <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">รายละเอียดห้อง</Label>
                                                                 <Button variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase tracking-wider text-black hover:bg-black/10 rounded-lg" onClick={() => addRoom(acc.id)}>
                                                                     <PlusCircle className="mr-1.5 h-3.5 w-3.5"/>
-                                                                    ເພີ່ມຫ້ອງ
+                                                                    เพิ่มห้อง
                                                                 </Button>
                                                             </div>
                                                             <div className="space-y-3">
                                                                 {acc.rooms.map((room, rIdx) => (
                                                                     <div key={room.id} className="flex flex-wrap items-end gap-3 p-4 rounded-xl bg-muted/20 border border-transparent hover:border-black/10 transition-all relative group">
                                                                         <div className="w-40 space-y-1.5">
-                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ວັນທີ</Label>
-                                                                            <Input placeholder="ວັນທີ" value={room.date as string || ''} onChange={e => updateRoom(acc.id, room.id, 'date', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-lg font-bold text-xs" />
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">วันที่</Label>
+                                                                            <Input placeholder="วันที่" value={room.date as string || ''} onChange={e => updateRoom(acc.id, room.id, 'date', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-lg font-bold text-xs" />
                                                                         </div>
                                                                         <div className="flex-1 min-w-[150px] space-y-1.5">
-                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ປະເພດ</Label>
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ประเภท</Label>
                                                                             <Input value={room.type} onChange={e => updateRoom(acc.id, room.id, 'type', e.target.value)} className="h-9 bg-background/50 border-transparent focus:bg-background rounded-lg font-bold text-sm" />
                                                                         </div>
                                                                         <div className="w-20 space-y-1.5">
-                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ຫ້ອງ</Label>
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ห้อง</Label>
                                                                             <Input type="number" value={room.numRooms} onChange={e => updateRoom(acc.id, room.id, 'numRooms', Number(e.target.value))} className="h-9 bg-background/50 border-transparent focus:bg-background rounded-lg font-bold text-sm text-center" />
                                                                         </div>
                                                                         <div className="w-20 space-y-1.5">
-                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ຄືນ</Label>
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">คืน</Label>
                                                                             <Input type="number" value={room.numNights} onChange={e => updateRoom(acc.id, room.id, 'numNights', Number(e.target.value))} className="h-9 bg-background/50 border-transparent focus:bg-background rounded-lg font-bold text-sm text-center" />
                                                                         </div>
                                                                         <div className="w-32 space-y-1.5">
-                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ລາຄາ</Label>
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ราคา</Label>
                                                                             <Input type="number" value={room.price} onChange={e => updateRoom(acc.id, room.id, 'price', Number(e.target.value))} className="h-9 bg-background/50 border-transparent focus:bg-background rounded-lg font-bold text-sm" />
                                                                         </div>
                                                                         <div className="w-24 space-y-1.5">
-                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">ສະກຸນເງິນ</Label>
+                                                                            <Label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/60">สกุลเงิน</Label>
                                                                             <Select value={room.currency} onValueChange={v => updateRoom(acc.id, room.id, 'currency', v)}>
                                                                                 <SelectTrigger className="h-9 bg-background/50 border-transparent focus:bg-background rounded-lg font-bold text-xs"><SelectValue /></SelectTrigger>
                                                                                 <SelectContent className="border-none shadow-xl rounded-xl">
-                                                                                    {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold">{c}</SelectItem>)}
+                                                                                    {Object.keys(currencySymbols).map(c => <SelectItem key={c} value={c} className="font-bold text-xs">{c}</SelectItem>)}
                                                                                 </SelectContent>
                                                                             </Select>
                                                                         </div>
-                                                                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => deleteRoom(acc.id, room.id)}>
-                                                                            <Trash2 className="h-4 w-4"/>
+                                                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg bg-white border border-black/5" onClick={() => deleteRoom(acc.id, room.id)}>
+                                                                            <Trash2 className="h-3.5 w-3.5 text-muted-foreground group-hover:text-destructive"/>
                                                                         </Button>
                                                                     </div>
                                                                 ))}
@@ -620,13 +620,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addAccommodation} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມທີ່ພັກ
+                                            เพิ่มที่พัก
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Transport */}
-                                <CostCategoryContent title="ຄ່າຂົນສົ່ງ" icon={<Truck className="h-5 w-5" />} summary={<CategorySummary totals={tripTotals} />}>
+                                <CostCategoryContent title="ค่าขนส่ง" icon={<Truck className="h-5 w-5" />} summary={<CategorySummary totals={tripTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.trips?.map((trip, index) => (
                                             <Card key={trip.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -635,7 +635,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ລົດ
+                                                        รถ
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('trips', trip.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -643,30 +643,30 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເສັ້ນທາງ/ປະເພດລົດ</Label>
-                                                        <Input placeholder="ວຽງຈັນ - ວັງວຽງ (ລົດຕູ້)" value={trip.route} onChange={e => updateItem('trips', trip.id, 'route', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">เส้นทาง/ประเภทรถ</Label>
+                                                        <Input placeholder="เวียงจันทน์ - วังเวียง (รถตู้)" value={trip.route} onChange={e => updateItem('trips', trip.id, 'route', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={trip.date as string || ''} onChange={e => updateItem('trips', trip.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                        <Input placeholder="วันที่" value={trip.date as string || ''} onChange={e => updateItem('trips', trip.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຄັນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">คัน</Label>
                                                         <Input type="number" value={trip.numVehicles} onChange={e => updateItem('trips', trip.id, 'numVehicles', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วัน</Label>
                                                         <Input type="number" value={trip.numDays} onChange={e => updateItem('trips', trip.id, 'numDays', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ຄັນ/ວັນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา/คัน/วัน</Label>
                                                         <Input type="number" value={trip.pricePerVehicle} onChange={e => updateItem('trips', trip.id, 'pricePerVehicle', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={trip.currency} onValueChange={v => updateItem('trips', trip.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -679,13 +679,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addTrip} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າຂົນສົ່ງ
+                                            เพิ่มค่าขนส่ง
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Flights */}
-                                <CostCategoryContent title="ຄ່າປີ້ຍົນ" icon={<Plane className="h-5 w-5" />} summary={<CategorySummary totals={flightTotals} />}>
+                                <CostCategoryContent title="ค่าตั๋วเครื่องบิน" icon={<Plane className="h-5 w-5" />} summary={<CategorySummary totals={flightTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.flights?.map((flight, index) => (
                                             <Card key={flight.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -694,7 +694,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ຖ້ຽວບິນ
+                                                        เที่ยวบิน
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('flights', flight.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -702,35 +702,35 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-3 gap-6">
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຈາກ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">จาก</Label>
                                                         <Input value={flight.from} onChange={e => updateItem('flights', flight.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ໄປ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ไป</Label>
                                                         <Input value={flight.to} onChange={e => updateItem('flights', flight.id, 'to', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີອອກເດີນທາງ</Label>
-                                                        <Input placeholder="ວັນທີ" value={flight.departureDate as string || ''} onChange={e => updateItem('flights', flight.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่ออกเดินทาง</Label>
+                                                        <Input placeholder="วันที่" value={flight.departureDate as string || ''} onChange={e => updateItem('flights', flight.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເວລາ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">เวลา</Label>
                                                         <Input value={flight.departureTime} onChange={e => updateItem('flights', flight.id, 'departureTime', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ຄົນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา/คน</Label>
                                                         <Input type="number" value={flight.pricePerPerson} onChange={e => updateItem('flights', flight.id, 'pricePerPerson', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຈຳນວນຄົນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">จำนวนคน</Label>
                                                         <Input type="number" value={flight.numPeople} onChange={e => updateItem('flights', flight.id, 'numPeople', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={flight.currency} onValueChange={v => updateItem('flights', flight.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -743,13 +743,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addFlight} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າປີ້ຍົນ
+                                            เพิ่มค่าตั๋วเครื่องบิน
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
-                                {/* Train */}
-                                <CostCategoryContent title="ຄ່າປີ້ລົດໄຟ" icon={<TrainFront className="h-5 w-5" />} summary={<CategorySummary totals={trainTotals} />}>
+                                {/* Train Tickets */}
+                                <CostCategoryContent title="ค่าตั๋วรถไฟ" icon={<TrainFront className="h-5 w-5" />} summary={<CategorySummary totals={trainTicketTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.trainTickets?.map((ticket, index) => (
                                             <Card key={ticket.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -758,43 +758,43 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ປີ້ລົດໄຟ
+                                                        ตั๋วรถไฟ
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('trainTickets', ticket.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
                                                     </Button>
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-3 gap-6">
-                                                    <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເສັ້ນທາງ</Label>
-                                                        <Input placeholder="ຈາກ - ໄປ" value={ticket.from} onChange={e => updateItem('trainTickets', ticket.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                    <div className="space-y-2.5">
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">จาก</Label>
+                                                        <Input value={ticket.from} onChange={e => updateItem('trainTickets', ticket.id, 'from', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີອອກເດີນທາງ</Label>
-                                                        <Input placeholder="ວັນທີ" value={ticket.departureDate as string || ''} onChange={e => updateItem('trainTickets', ticket.id, 'departureDate', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ไป</Label>
+                                                        <Input value={ticket.to} onChange={e => updateItem('trainTickets', ticket.id, 'to', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                    </div>
+                                                    <div className="space-y-2.5">
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                        <Input placeholder="วันที่" value={ticket.date as string || ''} onChange={e => updateItem('trainTickets', ticket.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເວລາ</Label>
-                                                        <Input value={ticket.departureTime} onChange={e => updateItem('trainTickets', ticket.id, 'departureTime', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">เวลา</Label>
+                                                        <Input value={ticket.time} onChange={e => updateItem('trainTickets', ticket.id, 'time', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊັ້ນປີ້</Label>
-                                                        <Input value={ticket.ticketClass} onChange={e => updateItem('trainTickets', ticket.id, 'ticketClass', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา/คน</Label>
+                                                        <Input type="number" value={ticket.pricePerPerson} onChange={e => updateItem('trainTickets', ticket.id, 'pricePerPerson', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຈຳນວນປີ້</Label>
-                                                        <Input type="number" value={ticket.numTickets} onChange={e => updateItem('trainTickets', ticket.id, 'numTickets', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">จำนวนคน</Label>
+                                                        <Input type="number" value={ticket.numPeople} onChange={e => updateItem('trainTickets', ticket.id, 'numPeople', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ປີ້</Label>
-                                                        <Input type="number" value={ticket.pricePerTicket} onChange={e => updateItem('trainTickets', ticket.id, 'pricePerTicket', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
-                                                    </div>
-                                                    <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={ticket.currency} onValueChange={v => updateItem('trainTickets', ticket.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -807,13 +807,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addTrainTicket} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າປີ້ລົດໄຟ
+                                            เพิ่มค่าตั๋วรถไฟ
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Entrance Fees */}
-                                <CostCategoryContent title="ຄ່າເຂົ້າຊົມສະຖານທີ່" icon={<Camera className="h-5 w-5" />} summary={<CategorySummary totals={entranceFeeTotals} />}>
+                                <CostCategoryContent title="ค่าเข้าชมสถานที่" icon={<Camera className="h-5 w-5" />} summary={<CategorySummary totals={entranceFeeTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.entranceFees?.map((fee, index) => (
                                             <Card key={fee.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -822,7 +822,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ສະຖານທີ່
+                                                        สถานที่
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('entranceFees', fee.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -830,12 +830,12 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ສະຖານທີ່</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อสถานที่</Label>
                                                         <Input value={fee.locationName} onChange={e => updateItem('entranceFees', fee.id, 'locationName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={fee.date as string || ''} onChange={e => updateItem('entranceFees', fee.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">จำนวนสถานที่</Label>
+                                                        <Input type="number" value={fee.numLocations} onChange={e => updateItem('entranceFees', fee.id, 'numLocations', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -845,11 +845,11 @@ export default function TourDetailPage() {
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา</Label>
                                                         <Input type="number" value={fee.price} onChange={e => updateItem('entranceFees', fee.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={fee.currency} onValueChange={v => updateItem('entranceFees', fee.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -862,13 +862,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addEntranceFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າເຂົ້າຊົມ
+                                            เพิ่มค่าเข้าชม
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Meals */}
-                                <CostCategoryContent title="ຄ່າອາຫານ" icon={<UtensilsCrossed className="h-5 w-5" />} summary={<CategorySummary totals={mealTotals} />}>
+                                <CostCategoryContent title="ค่าอาหาร" icon={<UtensilsCrossed className="h-5 w-5" />} summary={<CategorySummary totals={mealTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.meals?.map((meal, index) => (
                                             <Card key={meal.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -877,7 +877,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ລາຍການອາຫານ
+                                                        รายการอาหาร
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('meals', meal.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -886,12 +886,12 @@ export default function TourDetailPage() {
                                                 <CardContent className="p-6 space-y-6">
                                                     <div className="grid md:grid-cols-3 gap-6">
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ລາຍການ</Label>
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อรายการ</Label>
                                                             <Input value={meal.name} onChange={e => updateItem('meals', meal.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                            <Input placeholder="ວັນທີ" value={meal.date as string || ''} onChange={e => updateItem('meals', meal.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                            <Input placeholder="วันที่" value={meal.date as string || ''} onChange={e => updateItem('meals', meal.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
                                                             <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -903,15 +903,15 @@ export default function TourDetailPage() {
 
                                                     <div className="grid grid-cols-3 gap-6">
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ເຊົ້າ (ມື້)</Label>
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">เช้า (มื้อ)</Label>
                                                             <Input type="number" value={meal.breakfast} onChange={e => updateItem('meals', meal.id, 'breakfast', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ທ່ຽງ (ມື້)</Label>
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">เที่ยง (มื้อ)</Label>
                                                             <Input type="number" value={meal.lunch} onChange={e => updateItem('meals', meal.id, 'lunch', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ແລງ (ມື້)</Label>
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">เย็น (มื้อ)</Label>
                                                             <Input type="number" value={meal.dinner} onChange={e => updateItem('meals', meal.id, 'dinner', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                         </div>
                                                     </div>
@@ -920,11 +920,11 @@ export default function TourDetailPage() {
 
                                                     <div className="grid md:grid-cols-2 gap-6">
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ມື້</Label>
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา/มื้อ</Label>
                                                             <Input type="number" value={meal.pricePerMeal} onChange={e => updateItem('meals', meal.id, 'pricePerMeal', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                         </div>
                                                         <div className="space-y-2.5">
-                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                            <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                             <Select value={meal.currency} onValueChange={v => updateItem('meals', meal.id, 'currency', v)}>
                                                                 <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                                 <SelectContent className="border-none shadow-xl rounded-xl">
@@ -938,13 +938,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addMealCost} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າອາຫານ
+                                            เพิ่มค่าอาหาร
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Guide */}
-                                <CostCategoryContent title="ຄ່າໄກ້" icon={<Users className="h-5 w-5" />} summary={<CategorySummary totals={guideTotals} />}>
+                                <CostCategoryContent title="ค่าไกด์" icon={<Users className="h-5 w-5" />} summary={<CategorySummary totals={guideTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.guides?.map((guide, index) => (
                                             <Card key={guide.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -953,7 +953,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ໄກ້
+                                                        ไกด์
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('guides', guide.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -961,30 +961,30 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ໄກ້</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อไกด์</Label>
                                                         <Input value={guide.guideName} onChange={e => updateItem('guides', guide.id, 'guideName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={guide.date as string || ''} onChange={e => updateItem('guides', guide.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                        <Input placeholder="วันที่" value={guide.date as string || ''} onChange={e => updateItem('guides', guide.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຄົນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">คน</Label>
                                                         <Input type="number" value={guide.numGuides} onChange={e => updateItem('guides', guide.id, 'numGuides', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วัน</Label>
                                                         <Input type="number" value={guide.numDays} onChange={e => updateItem('guides', guide.id, 'numDays', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold text-center" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ/ວັນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา/วัน</Label>
                                                         <Input type="number" value={guide.pricePerDay} onChange={e => updateItem('guides', guide.id, 'pricePerDay', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={guide.currency} onValueChange={v => updateItem('guides', guide.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -997,13 +997,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addGuideFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າໄກ້
+                                            เพิ่มค่าไกด์
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Documents */}
-                                <CostCategoryContent title="ຄ່າເອກະສານ" icon={<FileText className="h-5 w-5" />} summary={<CategorySummary totals={documentTotals} />}>
+                                <CostCategoryContent title="ค่าเอกสาร" icon={<FileText className="h-5 w-5" />} summary={<CategorySummary totals={documentTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.documents?.map((doc, index) => (
                                             <Card key={doc.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -1012,7 +1012,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ເອກະສານ
+                                                        เอกสาร
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('documents', doc.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -1020,12 +1020,12 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ເອກະສານ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อเอกสาร</Label>
                                                         <Input value={doc.documentName} onChange={e => updateItem('documents', doc.id, 'documentName', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={doc.date as string || ''} onChange={e => updateItem('documents', doc.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                        <Input placeholder="วันที่" value={doc.date as string || ''} onChange={e => updateItem('documents', doc.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -1035,11 +1035,11 @@ export default function TourDetailPage() {
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา</Label>
                                                         <Input type="number" value={doc.price} onChange={e => updateItem('documents', doc.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={doc.currency} onValueChange={v => updateItem('documents', doc.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -1052,13 +1052,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addDocumentFee} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມຄ່າເອກະສານ
+                                            เพิ่มค่าเอกสาร
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Overseas Package */}
-                                <CostCategoryContent title="ຄ່າເພັກເກດຕ່າງປະເທດ" icon={<Earth className="h-5 w-5" />} summary={<CategorySummary totals={overseasPackageTotals} />}>
+                                <CostCategoryContent title="ค่าแพ็กเกจต่างประเทศ" icon={<Earth className="h-5 w-5" />} summary={<CategorySummary totals={overseasPackageTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.overseasPackages?.map((pkg, index) => (
                                             <Card key={pkg.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -1067,7 +1067,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ແພັກເກດ
+                                                        แพ็กเกจ
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('overseasPackages', pkg.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -1075,22 +1075,22 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ແພັກເກດ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อแพ็กเกจ</Label>
                                                         <Input value={pkg.name} onChange={e => updateItem('overseasPackages', pkg.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={pkg.date as string || ''} onChange={e => updateItem('overseasPackages', pkg.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                        <Input placeholder="วันที่" value={pkg.date as string || ''} onChange={e => updateItem('overseasPackages', pkg.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
 
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-4" />
 
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา</Label>
                                                         <Input type="number" value={pkg.price} onChange={e => updateItem('overseasPackages', pkg.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={pkg.currency} onValueChange={v => updateItem('overseasPackages', pkg.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -1103,13 +1103,13 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addOverseasPackage} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມແພັກເກດ
+                                            เพิ่มแพ็กเกจ
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
 
                                 {/* Activities */}
-                                <CostCategoryContent title="ຄ່າກິດຈະກຳ" icon={<Bike className="h-5 w-5" />} summary={<CategorySummary totals={activityTotals} />}>
+                                <CostCategoryContent title="ค่ากิจกรรม" icon={<Bike className="h-5 w-5" />} summary={<CategorySummary totals={activityTotals} />}>
                                     <div className="space-y-4">
                                         {allCosts.activities?.map((activity, index) => (
                                             <Card key={activity.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-background/50">
@@ -1118,7 +1118,7 @@ export default function TourDetailPage() {
                                                         <div className="w-6 h-6 rounded-md bg-black/10 flex items-center justify-center text-[10px] text-black">
                                                             {index + 1}
                                                         </div>
-                                                        ກິດຈະກຳ
+                                                        กิจกรรม
                                                     </CardTitle>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 group" onClick={() => deleteItem('activities', activity.id)}>
                                                         <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive"/>
@@ -1126,12 +1126,12 @@ export default function TourDetailPage() {
                                                 </CardHeader>
                                                 <CardContent className="p-6 grid md:grid-cols-4 gap-6">
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ຊື່ກິດຈະກຳ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ชื่อกิจกรรม</Label>
                                                         <Input value={activity.name} onChange={e => updateItem('activities', activity.id, 'name', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ວັນທີ</Label>
-                                                        <Input placeholder="ວັນທີ" value={activity.date as string || ''} onChange={e => updateItem('activities', activity.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">วันที่</Label>
+                                                        <Input placeholder="วันที่" value={activity.date as string || ''} onChange={e => updateItem('activities', activity.id, 'date', e.target.value)} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5">
                                                         <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">Pax</Label>
@@ -1141,11 +1141,11 @@ export default function TourDetailPage() {
                                                     <div className="h-px bg-muted/50 my-1 md:col-span-3" />
 
                                                     <div className="space-y-2.5">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ລາຄາ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ราคา</Label>
                                                         <Input type="number" value={activity.price} onChange={e => updateItem('activities', activity.id, 'price', Number(e.target.value))} className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold" />
                                                     </div>
                                                     <div className="space-y-2.5 col-span-2">
-                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">ສະກຸນເງິນ</Label>
+                                                        <Label className="text-[10px] font-black uppercase tracking-wider text-foreground ml-1">สกุลเงิน</Label>
                                                         <Select value={activity.currency} onValueChange={v => updateItem('activities', activity.id, 'currency', v)}>
                                                             <SelectTrigger className="h-11 bg-muted/30 border-transparent focus:bg-background focus:ring-2 focus:ring-black/20 transition-all rounded-xl font-bold"><SelectValue /></SelectTrigger>
                                                             <SelectContent className="border-none shadow-xl rounded-xl">
@@ -1158,7 +1158,7 @@ export default function TourDetailPage() {
                                         ))}
                                         <Button onClick={addActivity} variant="outline" className="w-full h-12 border-dashed border-2 hover:border-black hover:bg-black/5 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                                             <PlusCircle className="mr-2 h-5 w-5" />
-                                            ເພີ່ມກິດຈະກຳ
+                                            เพิ่มกิจกรรม
                                         </Button>
                                     </div>
                                 </CostCategoryContent>
@@ -1166,10 +1166,10 @@ export default function TourDetailPage() {
                             <div className="flex justify-between pt-6 print:hidden">
                                 <Button variant="outline" onClick={() => setActiveTab('info')} className="rounded-full px-6 h-10 font-black text-sm border-2 transition-all">
                                     <ArrowLeft className="mr-2 h-4 w-4" />
-                                    ກັບຄືນ
+                                    กลับคืน
                                 </Button>
                                 <Button onClick={() => setActiveTab('grand_totals')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
-                                    ຕໍ່ໄປ: ລວມຍອດຕົ້ນທຶນ
+                                    ต่อไป: รวมยอดต้นทุน
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
@@ -1185,7 +1185,7 @@ export default function TourDetailPage() {
                                                     <div className="p-1.5 bg-black/10 rounded-lg text-black">
                                                         <Calculator className="h-4 w-4" />
                                                     </div>
-                                                    ລວມຍອດຕົ້ນທຶນ (Grand Totals)
+                                                    รวมยอดต้นทุน (Grand Totals)
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-8">
@@ -1203,10 +1203,10 @@ export default function TourDetailPage() {
                                     <div className="flex justify-between pt-6 print:hidden">
                                         <Button variant="outline" onClick={() => setActiveTab('costs')} className="rounded-full px-6 h-10 font-black text-sm border-2 transition-all">
                                             <ArrowLeft className="mr-2 h-4 w-4" />
-                                            ກັບຄືນ
+                                            กลับคืน
                                         </Button>
                                         <Button onClick={() => setActiveTab('category_totals')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
-                                            ຕໍ່ໄປ: ລາຍລະອຽດຕົ້ນທຶນ
+                                            ต่อไป: รายละเอียดต้นทุน
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </Button>
                                     </div>
@@ -1220,10 +1220,10 @@ export default function TourDetailPage() {
                                     <div className="flex justify-between pt-6 print:hidden">
                                         <Button variant="outline" onClick={() => setActiveTab('grand_totals')} className="rounded-full px-6 h-10 font-black text-sm border-2 transition-all">
                                             <ArrowLeft className="mr-2 h-4 w-4" />
-                                            ກັບຄືນ
+                                            กลับคืน
                                         </Button>
                                         <Button onClick={() => setActiveTab('calculation_summary')} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
-                                            ຕໍ່ໄປ: ສະຫຼຸບການຄຳນວນ
+                                            ต่อไป: สรุปการคำนวณ
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </Button>
                                     </div>
@@ -1244,11 +1244,11 @@ export default function TourDetailPage() {
                                     <div className="flex justify-between pt-6 print:hidden">
                                         <Button variant="outline" onClick={() => setActiveTab('category_totals')} className="rounded-full px-6 h-10 font-black text-sm border-2 transition-all">
                                             <ArrowLeft className="mr-2 h-4 w-4" />
-                                            ກັບຄືນ
+                                            กลับคืน
                                         </Button>
                                         <Button onClick={handleSaveCalculation} className="rounded-full px-6 h-10 font-black text-sm shadow-lg shadow-black/20 hover:shadow-xl transition-all">
                                             <Save className="mr-2 h-4 w-4" />
-                                            ບັນທຶກຂໍ້ມູນ
+                                            บันทึกข้อมูล
                                         </Button>
                                     </div>
                                 </TabsContent>

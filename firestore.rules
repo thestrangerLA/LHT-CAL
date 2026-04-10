@@ -36,8 +36,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && 
-             request.auth.token.email == "laohugtravelwork@gmail.com" && 
-             request.auth.token.email_verified == true;
+             request.auth.token.email == "laohugtravelwork@gmail.com";
     }
 
     function uidUnchanged() {
